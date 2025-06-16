@@ -1,41 +1,7 @@
 import sys
 import struct
-from enum import Enum
 from typing import List, Dict
-
-
-# Новая RISC система команд - только 19 базовых команд
-class Opcode(Enum):
-    NOP = 0x00  # нет операции
-    HALT = 0x01  # остановка
-    LOAD = 0x02  # загрузить из памяти
-    STORE = 0x03  # сохранить в память
-    PUSH = 0x04  # положить на стек
-    POP = 0x05  # снять со стека
-    ADD = 0x06  # сложение
-    SUB = 0x07  # вычитание
-    MUL = 0x08  # умножение
-    DIV = 0x09  # деление
-    MOD = 0x0A  # остаток от деления
-    AND = 0x0B  # битовое И
-    OR = 0x0C  # битовое ИЛИ
-    XOR = 0x0D  # битовое исключающее ИЛИ
-    CMP = 0x0E  # сравнение (==)
-    JMP = 0x0F  # безусловный переход
-    JZ = 0x10  # условный переход если ноль
-    IN = 0x11  # ввод
-    OUT = 0x12  # вывод
-
-
-class Reg(Enum):
-    ZERO = 0  # всегда 0
-    SP = 1  # указатель стека данных
-    RSP = 2  # указатель стека возвратов
-    TOS = 3  # вершина стека (Top Of Stack)
-    BASE = 4  # базовый адрес
-    T1 = 5  # временный регистр 1
-    T2 = 6  # временный регистр 2
-    PC = 7  # счетчик команд
+from isa import Opcode, Reg
 
 
 class Instruction:
