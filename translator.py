@@ -4,108 +4,76 @@ from enum import Enum
 from typing import List, Dict
 
 
+# Новая RISC система команд - только 19 базовых команд
 class Opcode(Enum):
-    NOP = 0x00;
-    HALT = 0x01;
-    LI = 0x02;
-    ADDI = 0x03
-    JMP = 0x04;
-    JZ = 0x05;
-    JNZ = 0x06;
-    CALL = 0x07;
-    RET = 0x08
-    PUSH = 0x10;
-    POP = 0x11;
-    DUP = 0x12;
-    DROP = 0x13;
-    SWAP = 0x14;
-    OVER = 0x15;
-    ROT = 0x16
-    ADD = 0x20;
-    SUB = 0x21;
-    MUL = 0x22;
-    DIV = 0x23;
-    MOD = 0x24
-    EQ = 0x25;
-    LT = 0x26;
-    GT = 0x27
-    LOAD = 0x30;
-    STORE = 0x31;
-    IN = 0x32;
-    OUT = 0x33
-    RSPUSH = 0x40;
-    RSPOP = 0x41;
-    RSPEEK = 0x42
-    EXIT = 0x43;
-    LITERAL = 0x44;
-    BRANCH = 0x45
+    NOP = 0x00  # нет операции
+    HALT = 0x01  # остановка
+    LOAD = 0x02  # загрузить из памяти
+    STORE = 0x03  # сохранить в память
+    PUSH = 0x04  # положить на стек
+    POP = 0x05  # снять со стека
+    ADD = 0x06  # сложение
+    SUB = 0x07  # вычитание
+    MUL = 0x08  # умножение
+    DIV = 0x09  # деление
+    MOD = 0x0A  # остаток от деления
+    AND = 0x0B  # битовое И
+    OR = 0x0C  # битовое ИЛИ
+    XOR = 0x0D  # битовое исключающее ИЛИ
+    CMP = 0x0E  # сравнение (==)
+    JMP = 0x0F  # безусловный переход
+    JZ = 0x10  # условный переход если ноль
+    IN = 0x11  # ввод
+    OUT = 0x12  # вывод
 
 
 class Reg(Enum):
-    ZERO = 0;
-    DSP = 1;
-    RSP = 2;
-    TOS = 3;
-    T1 = 4;
-    T2 = 5;
-    T3 = 6;
-    BASE = 7
+    ZERO = 0  # всегда 0
+    SP = 1  # указатель стека данных
+    RSP = 2  # указатель стека возвратов
+    TOS = 3  # вершина стека (Top Of Stack)
+    BASE = 4  # базовый адрес
+    T1 = 5  # временный регистр 1
+    T2 = 6  # временный регистр 2
+    PC = 7  # счетчик команд
 
 
 class Instruction:
     def __init__(self, opcode: Opcode, rs=0, rt=0, rd=0, imm=0, addr=0, is_label=False):
         self.opcode = opcode
-        self.rs = rs;
-        self.rt = rt;
+        self.rs = rs
+        self.rt = rt
         self.rd = rd
-        self.imm = imm;
+        self.imm = imm
         self.addr = addr
         self.is_label = is_label
 
     def to_binary(self) -> bytes:
-        """Безопасная упаковка с проверкой границ"""
+        """Упаковка в 32-битный формат"""
 
         def safe_uint32(value):
-            """Безопасное приведение к 32-битному беззнаковому числу"""
-            value = int(value) & 0xFFFFFFFF
-            if value < 0:
-                value = 0
-            elif value > 0xFFFFFFFF:
-                value = 0xFFFFFFFF
-            return value
+            return int(value) & 0xFFFFFFFF
 
         def safe_uint16(value):
-            """Безопасное приведение к 16-битному беззнаковому числу"""
-            value = int(value) & 0xFFFF
-            if value < 0:
-                value = 0
-            elif value > 0xFFFF:
-                value = 0xFFFF
-            return value
+            return int(value) & 0xFFFF
 
         def safe_uint26(value):
-            """Безопасное приведение к 26-битному беззнаковому числу"""
-            value = int(value) & 0x3FFFFFF
-            if value < 0:
-                value = 0
-            elif value > 0x3FFFFFF:
-                value = 0x3FFFFFF
-            return value
+            return int(value) & 0x3FFFFFF
 
-        if self.opcode in [Opcode.JMP, Opcode.CALL]:
-            # J-type: [opcode:6][address:26]
+        # J-type для переходов
+        if self.opcode in [Opcode.JMP]:
             opcode_bits = (self.opcode.value & 0x3F) << 26
             addr_bits = safe_uint26(self.addr)
             word = opcode_bits | addr_bits
-        elif self.opcode in [Opcode.LI, Opcode.ADDI, Opcode.JZ, Opcode.JNZ, Opcode.LOAD, Opcode.STORE, Opcode.LITERAL]:
-            # I-type: [opcode:6][rs:5][rt:5][immediate:16]
+        # I-type для команд с immediate
+        elif self.opcode in [Opcode.LOAD, Opcode.STORE, Opcode.JZ, Opcode.IN, Opcode.OUT]:
             opcode_bits = (self.opcode.value & 0x3F) << 26
             rs_bits = (self.rs & 0x1F) << 21
             rt_bits = (self.rt & 0x1F) << 16
             imm_bits = safe_uint16(self.imm)
             word = opcode_bits | rs_bits | rt_bits | imm_bits
+        # R-type для остальных
         else:
-            # R-type: [opcode:6][rs:5][rt:5][rd:5][shamt:5][funct:6]
             opcode_bits = (self.opcode.value & 0x3F) << 26
             rs_bits = (self.rs & 0x1F) << 21
             rt_bits = (self.rt & 0x1F) << 16
@@ -113,52 +81,46 @@ class Instruction:
             word = opcode_bits | rs_bits | rt_bits | rd_bits
 
         word = safe_uint32(word)
-
-        try:
-            return struct.pack('>I', word)
-        except struct.error as e:
-            print(
-                f"ОШИБКА упаковки: word=0x{word:08X}, opcode={self.opcode}, rs={self.rs}, rt={self.rt}, rd={self.rd}, imm={self.imm}, addr={self.addr}")
-            raise e
+        return struct.pack('>I', word)
 
     def to_hex(self, addr: int) -> str:
-        """Листинг с безопасной обработкой"""
-        try:
-            hex_code = self.to_binary().hex().upper()
-        except:
-            hex_code = "XXXXXXXX"
+        """Листинг команды"""
+        hex_code = self.to_binary().hex().upper()
 
-        if self.opcode == Opcode.LI:
-            mnemonic = f"LI R{self.rt}, {self.imm}"
-        elif self.opcode == Opcode.LITERAL:
-            mnemonic = f"LITERAL {self.imm}"
-        elif self.opcode in [Opcode.ADD, Opcode.SUB, Opcode.MUL, Opcode.DIV, Opcode.MOD, Opcode.EQ, Opcode.LT,
-                             Opcode.GT]:
+        if self.opcode == Opcode.LOAD:
+            mnemonic = f"LOAD R{self.rt}, R{self.rs}+{self.imm}"
+        elif self.opcode == Opcode.STORE:
+            mnemonic = f"STORE R{self.rs}, R{self.rt}+{self.imm}"
+        elif self.opcode in [Opcode.ADD, Opcode.SUB, Opcode.MUL, Opcode.DIV, Opcode.MOD,
+                             Opcode.AND, Opcode.OR, Opcode.XOR, Opcode.CMP]:
             mnemonic = f"{self.opcode.name} R{self.rd}, R{self.rs}, R{self.rt}"
-        elif self.opcode in [Opcode.PUSH, Opcode.OUT, Opcode.RSPUSH]:
-            mnemonic = f"{self.opcode.name} R{self.rs}"
-        elif self.opcode in [Opcode.POP, Opcode.IN, Opcode.RSPOP]:
-            mnemonic = f"{self.opcode.name} R{self.rt}"
+        elif self.opcode == Opcode.PUSH:
+            mnemonic = f"PUSH R{self.rs}"
+        elif self.opcode == Opcode.POP:
+            mnemonic = f"POP R{self.rt}"
         elif self.opcode == Opcode.JZ:
             mnemonic = f"JZ R{self.rs}, 0x{self.imm:04X}"
-        elif self.opcode == Opcode.JNZ:
-            mnemonic = f"JNZ R{self.rs}, 0x{self.imm:04X}"
-        elif self.opcode in [Opcode.JMP, Opcode.CALL]:
-            mnemonic = f"{self.opcode.name} 0x{self.addr:04X}"
+        elif self.opcode == Opcode.JMP:
+            mnemonic = f"JMP 0x{self.addr:04X}"
+        elif self.opcode == Opcode.IN:
+            mnemonic = f"IN R{self.rt}, 0x{self.imm:04X}"
+        elif self.opcode == Opcode.OUT:
+            mnemonic = f"OUT R{self.rs}, 0x{self.imm:04X}"
         else:
             mnemonic = self.opcode.name
+
         return f"0x{addr:04X}: {hex_code}  {mnemonic}"
 
 
 class Token:
     def __init__(self, type: str, value: str, line: int = 0):
-        self.type = type;
-        self.value = value;
+        self.type = type
+        self.value = value
         self.line = line
 
 
 def tokenize(text: str) -> List[Token]:
-    """Улучшенный токенизер с лучшей обработкой строк"""
+    """Токенизер"""
     tokens = []
     for line_num, line in enumerate(text.split('\n'), 1):
         if '\\' in line:
@@ -203,7 +165,7 @@ def tokenize(text: str) -> List[Token]:
     return tokens
 
 
-class FixedForthCompiler:
+class RiscForthCompiler:
     def __init__(self):
         self.code: List[Instruction] = []
         self.data: List[int] = []
@@ -214,31 +176,44 @@ class FixedForthCompiler:
         self.label_count = 0
 
         # Стеки для циклов
-        self.loop_stack = []  # для do/loop
-        self.begin_stack = []  # для begin/until/while/repeat
+        self.loop_stack = []
+        self.begin_stack = []
 
         self.data_addr = 0x1000
         self.var_addr = 0x2000
 
+        # Memory-mapped I/O порты
+        self.IO_INPUT_PORT = 0x8000
+        self.IO_OUTPUT_PORT = 0x8001
+
         self.builtins = {
-            # Арифметика
-            '+': self._gen_binary_op(Opcode.ADD),
-            '-': self._gen_binary_op(Opcode.SUB),
-            '*': self._gen_binary_op(Opcode.MUL),
-            '/': self._gen_binary_op(Opcode.DIV),
-            'mod': self._gen_binary_op(Opcode.MOD),
+            # Арифметические операции
+            '+': self._gen_add,
+            '-': self._gen_sub,
+            '*': self._gen_mul,
+            '/': self._gen_div,
+            'mod': self._gen_mod,
+
+            # Битовые операции
+            'and': self._gen_and,
+            'or': self._gen_or,
+            'xor': self._gen_xor,
+            'not': self._gen_not,
 
             # Сравнения
-            '=': self._gen_binary_op(Opcode.EQ),
-            '<': self._gen_binary_op(Opcode.LT),
-            '>': self._gen_binary_op(Opcode.GT),
+            '=': self._gen_eq,
+            '<': self._gen_lt,
+            '>': self._gen_gt,
+            '!=': self._gen_ne,
+            '<=': self._gen_le,
+            '>=': self._gen_ge,
 
             # Стековые операции
-            'dup': lambda: self.code.append(Instruction(Opcode.DUP)),
-            'drop': lambda: self.code.append(Instruction(Opcode.DROP)),
-            'swap': lambda: self.code.append(Instruction(Opcode.SWAP)),
-            'over': lambda: self.code.append(Instruction(Opcode.OVER)),
-            'rot': lambda: self.code.append(Instruction(Opcode.ROT)),
+            'dup': self._gen_dup,
+            'drop': self._gen_drop,
+            'swap': self._gen_swap,
+            'over': self._gen_over,
+            'rot': self._gen_rot,
 
             # Стек возвратов
             '>r': self._gen_to_r,
@@ -246,24 +221,24 @@ class FixedForthCompiler:
             'r@': self._gen_r_fetch,
 
             # Память
-            '@': self._gen_fetch,
-            '!': self._gen_store,
+            '@': self._gen_fetch,  # это load
+            '!': self._gen_store,  # это store
 
-            # I/O
+            # MMIO
             'emit': self._gen_emit,
             'key': self._gen_key,
             '.': self._gen_print_num,
 
-            # Управление потоком
-            'exit': self._gen_exit,
-
-            # Счетчики циклов (заглушки - возвращают 0)
+            # Циклы
             'i': self._gen_loop_index,
             'j': self._gen_loop_index2,
+
+            # Управление потоком
+            'exit': self._gen_exit,
         }
 
     def compile(self, tokens: List[Token]) -> List[Instruction]:
-        print("Проход 1: сбор определений...")
+        print("Собираем определения в 1 проходе.")
         i = 0
         while i < len(tokens):
             token = tokens[i]
@@ -274,14 +249,15 @@ class FixedForthCompiler:
             else:
                 i += 1
 
-        print(f"Найдено слов: {list(self.words.keys())}")
-        print(f"Найдено переменных: {list(self.variables.keys())}")
 
         # Инициализация стеков
-        self.code.append(Instruction(Opcode.LI, rt=Reg.DSP.value, imm=0x3000))
-        self.code.append(Instruction(Opcode.LI, rt=Reg.RSP.value, imm=0x4000))
+        self._emit_literal(0x3000)  # SP = 0x3000
+        self.code.append(Instruction(Opcode.POP, rt=Reg.SP.value))
 
-        print("Проход 2: генерация кода...")
+        self._emit_literal(0x4000)  # RSP = 0x4000
+        self.code.append(Instruction(Opcode.POP, rt=Reg.RSP.value))
+
+        print("Генерируем код во 2 проходе.")
         i = 0
         while i < len(tokens):
             if tokens[i].type == 'COLON':
@@ -295,8 +271,226 @@ class FixedForthCompiler:
         self._resolve_labels()
         return self.code
 
+    def _emit_literal(self, value: int):
+        """Положить литерал на стек, в реальности это будет компилироваться в LOAD + PUSH"""
+        # Сохраняем значение во временную "память" (регистр T1)
+        # В реальной реализации это будет загрузка из сегмента данных
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.ZERO.value, rt=Reg.T1.value, imm=value & 0xFFFF))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    # Генераторы для арифметических операций
+    def _gen_add(self):
+        """+ (сложение): pop b, pop a, push(a+b)"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))  # b
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))  # a
+        self.code.append(Instruction(Opcode.ADD, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_sub(self):
+        """- (вычитание): pop b, pop a, push(a-b)"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))  # b
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))  # a
+        self.code.append(Instruction(Opcode.SUB, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_mul(self):
+        """* (умножение)"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.MUL, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_div(self):
+        """/ (деление)"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.DIV, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_mod(self):
+        """mod (остаток)"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.MOD, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    # Битовые операции
+    def _gen_and(self):
+        """and (битовое И)"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.AND, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_or(self):
+        """or (битовое ИЛИ)"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.OR, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_xor(self):
+        """xor (исключающее ИЛИ)"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.XOR, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_not(self):
+        """not (битовое НЕ) - через XOR с 0xFFFF"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.ZERO.value, rt=Reg.T2.value, imm=0xFFFF))
+        self.code.append(Instruction(Opcode.XOR, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    # Сравнения
+    def _gen_eq(self):
+        """= (равенство)"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.CMP, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_ne(self):
+        """!="""
+        self._gen_eq()
+        self._gen_not()
+
+    def _gen_lt(self):
+        """<"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))  # b
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))  # a
+        self.code.append(Instruction(Opcode.SUB, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))  # a-b
+        # Если результат отрицательный, то a < b
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.ZERO.value, rt=Reg.T2.value, imm=0x8000))
+        self.code.append(Instruction(Opcode.AND, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        # Если результат != 0, то отрицательное число
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.ZERO.value, rt=Reg.T2.value, imm=0))
+        self.code.append(Instruction(Opcode.CMP, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
+        self._gen_not()  # инвертируем результат
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_gt(self):
+        """> - b < a"""
+        # Меняем местами аргументы и вызываем <
+        self._gen_swap()
+        self._gen_lt()
+
+    def _gen_le(self):
+        """<= - NOT (a > b)"""
+        self._gen_gt()
+        self._gen_not()
+
+    def _gen_ge(self):
+        """>=  - NOT (a < b)"""
+        self._gen_lt()
+        self._gen_not()
+
+    # Стековые операции
+    def _gen_dup(self):
+        """dup - дублировать вершину стека"""
+        # LOAD SP, 0; PUSH T1
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.SP.value, rt=Reg.T1.value, imm=0))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_drop(self):
+        """drop - удалить вершину стека"""
+        # POP T1
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+
+    def _gen_swap(self):
+        """swap - поменять местами два верхних элемента"""
+        # POP T1; POP T2; PUSH T1; PUSH T2
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T2.value))
+
+    def _gen_over(self):
+        """over - копировать второй элемент на вершину"""
+        # LOAD SP, -1; PUSH T1
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.SP.value, rt=Reg.T1.value, imm=-1 & 0xFFFF))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_rot(self):
+        """rot - третий элемент на вершину: ( a b c -- b c a )"""
+        # POP c, POP b, POP a, PUSH b, PUSH c, PUSH a
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))  # c
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))  # b
+        self.code.append(Instruction(Opcode.POP, rt=Reg.BASE.value))  # a (используем BASE как временный)
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T2.value))  # push b
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))  # push c
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.BASE.value))  # push a
+
+    # Стек возвратов
+    def _gen_to_r(self):
+        """Генерация >r (переместить на стек возвратов)"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.STORE, rs=Reg.T1.value, rt=Reg.RSP.value, imm=0))  # сохраняем значение
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.ZERO.value, rt=Reg.T1.value, imm=1))
+        self.code.append(Instruction(Opcode.ADD, rs=Reg.RSP.value, rt=Reg.T1.value, rd=Reg.RSP.value))
+
+    def _gen_from_r(self):
+        """Генерация r> (снять со стека возвратов)"""
+        # RSP--
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.ZERO.value, rt=Reg.T1.value, imm=1))
+        self.code.append(Instruction(Opcode.SUB, rs=Reg.RSP.value, rt=Reg.T1.value, rd=Reg.RSP.value))
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.RSP.value, rt=Reg.T1.value, imm=0))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_r_fetch(self):
+        """Генерация r@ (прочитать со стека возвратов без удаления)"""
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.RSP.value, rt=Reg.T1.value, imm=-1 & 0xFFFF))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    # Операции с памятью
+    def _gen_fetch(self):
+        """@ (load) - загрузить из памяти"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))  # адрес
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.T1.value, rt=Reg.T1.value, imm=0))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_store(self):
+        """! (store) - сохранить в память"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))  # адрес
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))  # значение
+        self.code.append(Instruction(Opcode.STORE, rs=Reg.T2.value, rt=Reg.T1.value, imm=0))
+
+    # MMIO
+    def _gen_emit(self):
+        """emit - вывести символ"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.OUT, rs=Reg.T1.value, imm=self.IO_OUTPUT_PORT))
+
+    def _gen_key(self):
+        """key - ввести символ"""
+        self.code.append(Instruction(Opcode.IN, rt=Reg.T1.value, imm=self.IO_INPUT_PORT))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_print_num(self):
+        """. - вывести число"""
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        self.code.append(Instruction(Opcode.OUT, rs=Reg.T1.value, imm=self.IO_OUTPUT_PORT))
+
+    # Циклы
+    def _gen_loop_index(self):
+        """Генерация i (индекс цикла)"""
+        # В полной реализации это будет чтение с стека возвратов
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.ZERO.value, rt=Reg.T1.value, imm=0))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    def _gen_loop_index2(self):
+        """Генерация j (внешний индекс цикла)"""
+        self.code.append(Instruction(Opcode.LOAD, rs=Reg.ZERO.value, rt=Reg.T1.value, imm=0))
+        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+
+    # Управление потоком
+    def _gen_exit(self):
+        """Генерация exit (досрочный выход из слова)"""
+        # Возврат из процедуры - упрощенная реализация
+        self.code.append(Instruction(Opcode.POP, rt=Reg.PC.value))
+
     def _collect_variable(self, tokens: List[Token], i: int) -> int:
-        """Ходим по файлу и собираем переменные."""
         i += 1
         name = tokens[i].value
         size = 1
@@ -312,7 +506,6 @@ class FixedForthCompiler:
         return i
 
     def _skip_variable(self, tokens: List[Token], i: int) -> int:
-        """Пропускаем переменную на 2 проходе"""
         i += 1
         i += 1
         if i < len(tokens) and tokens[i].type == 'NUMBER':
@@ -340,16 +533,15 @@ class FixedForthCompiler:
         while i < len(tokens) and tokens[i].type != 'SEMICOLON':
             i = self._compile_token(tokens, i)
 
-        self.code.append(Instruction(Opcode.RET))
+        # RET заменяем на возврат через стек возвратов
+        self.code.append(Instruction(Opcode.POP, rt=Reg.PC.value))
         return i + 1
 
     def _compile_token(self, tokens: List[Token], i: int) -> int:
         token = tokens[i]
 
         if token.type == 'NUMBER':
-            self._gen_number(int(token.value))
-        elif token.type == 'STRING':
-            self._gen_string(token.value)
+            self._emit_literal(int(token.value))
         elif token.type == 'STRING_LITERAL':
             self._gen_string_literal(token.value)
         elif token.type == 'WORD':
@@ -359,55 +551,39 @@ class FixedForthCompiler:
                 addr = self.words[token.value]
                 if addr == -1:
                     raise ValueError(f"Слово '{token.value}' не скомпилировано")
-                self.code.append(Instruction(Opcode.CALL, addr=addr, is_label=True))
+                # CALL заменяем на PUSH PC; JMP addr
+                self.code.append(Instruction(Opcode.PUSH, rs=Reg.PC.value))
+                self.code.append(Instruction(Opcode.JMP, addr=addr, is_label=True))
             elif token.value in self.variables:
                 addr = self.variables[token.value]
-                self.code.append(Instruction(Opcode.LI, rt=Reg.T1.value, imm=addr & 0xFFFF))
-                self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+                self._emit_literal(addr)
             else:
                 raise ValueError(f"Неизвестное слово: {token.value} в строке {token.line}")
         elif token.type == 'IF':
             return self._compile_if(tokens, i)
         elif token.type == 'BEGIN':
             return self._compile_begin(tokens, i)
+        elif token.type == 'UNTIL':
+            return self._compile_until(tokens, i)
+        elif token.type == 'WHILE':
+            return self._compile_while(tokens, i)
+        elif token.type == 'REPEAT':
+            return self._compile_repeat(tokens, i)
         elif token.type == 'DO':
             return self._compile_do(tokens, i)
         elif token.type == 'LOOP':
             return self._compile_loop(tokens, i)
-        elif token.type == 'WHILE':
-            return self._compile_while(tokens, i)
         elif token.type == 'AGAIN':
             return self._compile_again(tokens, i)
 
         return i + 1
 
-    def _compile_do(self, tokens: List[Token], i: int) -> int:
-        """Компилировать do ... loop"""
-        i += 1
-        loop_start = len(self.code) * 4
-        self.loop_stack.append(loop_start)
-
-        return i
-
-    def _compile_loop(self, tokens: List[Token], i: int) -> int:
-        """Завершить do ... loop"""
-        if not self.loop_stack:
-            raise ValueError("LOOP без соответствующего DO")
-
-        loop_start = self.loop_stack.pop()
-
-        self.code.append(Instruction(Opcode.JMP, addr=loop_start, is_label=True))
-
-        return i + 1
-
-    def _compile_again(self, tokens: List[Token], i: int) -> int:
-        """Компилировать begin ... again (бесконечный цикл)"""
-        if not self.begin_stack:
-            raise ValueError("AGAIN без соответствующего BEGIN")
-
-        begin_addr = self.begin_stack.pop()
-        self.code.append(Instruction(Opcode.JMP, addr=begin_addr, is_label=True))
-        return i + 1
+    def _gen_string_literal(self, text: str):
+        """Генерировать строковый литерал ." ... " """
+        for char in text:
+            char_code = ord(char) & 0xFF
+            self._emit_literal(char_code)
+            self._gen_emit()
 
     def _compile_if(self, tokens: List[Token], i: int) -> int:
         i += 1
@@ -439,6 +615,20 @@ class FixedForthCompiler:
         self.begin_stack.append(start_label)
         return i
 
+    def _compile_until(self, tokens: List[Token], i: int) -> int:
+        """Компилируем begin и until"""
+        if not self.begin_stack:
+            raise ValueError("UNTIL без соответствующего BEGIN")
+
+        begin_addr = self.begin_stack.pop()
+
+        # POP условие и проверка
+        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
+        # Если условие == 0, то переходим обратно к begin
+        self.code.append(Instruction(Opcode.JZ, rs=Reg.T1.value, imm=begin_addr, is_label=True))
+
+        return i + 1
+
     def _compile_while(self, tokens: List[Token], i: int) -> int:
         i += 1
         self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
@@ -456,96 +646,43 @@ class FixedForthCompiler:
         self._place_label(end_label)
         return i + 1
 
-    def _gen_number(self, value: int):
-        """Генерируем числа"""
-        safe_value = value & 0xFFFF
-        if value < 0:
-            safe_value = 0
-        elif value > 0xFFFF:
-            safe_value = 0xFFFF
+    def _compile_repeat(self, tokens: List[Token], i: int) -> int:
+        """Компилировать begin ... while ... repeat"""
+        if not self.begin_stack:
+            raise ValueError("REPEAT без соответствующего BEGIN")
 
-        self.code.append(Instruction(Opcode.LI, rt=Reg.T1.value, imm=safe_value))
-        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+        begin_addr = self.begin_stack.pop()
 
-    def _gen_string_literal(self, text: str):
-        """Генерировать строковый литерал ." ... " """
-        for char in text:
-            char_code = ord(char) & 0xFF
-            self.code.append(Instruction(Opcode.LI, rt=Reg.T1.value, imm=char_code))
-            self.code.append(Instruction(Opcode.OUT, rs=Reg.T1.value))
+        # Безусловный переход обратно к begin
+        self.code.append(Instruction(Opcode.JMP, addr=begin_addr, is_label=True))
 
-    def _gen_string(self, text: str):
-        if text not in self.strings:
-            addr = self.data_addr
-            self.strings[text] = addr
-            self.data.extend([len(text)] + [ord(c) for c in text])
-            self.data_addr += (len(text) + 1) * 4
+        return i + 1
 
-        addr = self.strings[text]
-        safe_addr = addr & 0xFFFF
-        self.code.append(Instruction(Opcode.LI, rt=Reg.T1.value, imm=safe_addr))
-        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+    def _compile_do(self, tokens: List[Token], i: int) -> int:
+        """Компиляция do ... loop"""
+        i += 1
+        loop_start = self._new_label()
+        self._place_label(loop_start)
+        self.loop_stack.append(loop_start)
+        return i
 
-    def _gen_binary_op(self, opcode: Opcode):
-        def gen():
-            self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))
-            self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
-            self.code.append(Instruction(opcode, rs=Reg.T1.value, rt=Reg.T2.value, rd=Reg.T1.value))
-            self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+    def _compile_loop(self, tokens: List[Token], i: int) -> int:
+        """Завершение do ... loop"""
+        if not self.loop_stack:
+            raise ValueError("LOOP без соответствующего DO")
 
-        return gen
+        loop_start = self.loop_stack.pop()
+        self.code.append(Instruction(Opcode.JMP, addr=loop_start, is_label=True))
+        return i + 1
 
-    def _gen_to_r(self):
-        """Генерация >r (переместить на стек возвратов)"""
-        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
-        self.code.append(Instruction(Opcode.RSPUSH, rs=Reg.T1.value))
+    def _compile_again(self, tokens: List[Token], i: int) -> int:
+        """Компиляция begin ... again (бесконечный цикл)"""
+        if not self.begin_stack:
+            raise ValueError("AGAIN без соответствующего BEGIN")
 
-    def _gen_from_r(self):
-        """Генерация r> (снять со стека возвратов)"""
-        self.code.append(Instruction(Opcode.RSPOP, rt=Reg.T1.value))
-        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
-
-    def _gen_r_fetch(self):
-        """Генерация r@ (прочитать со стека возвратов)"""
-        self.code.append(Instruction(Opcode.RSPEEK, rt=Reg.T1.value))
-        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
-
-    def _gen_fetch(self):
-        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
-        self.code.append(Instruction(Opcode.LOAD, rs=Reg.T1.value, rt=Reg.T1.value))
-        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
-
-    def _gen_store(self):
-        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))  # addr
-        self.code.append(Instruction(Opcode.POP, rt=Reg.T2.value))  # value
-        self.code.append(Instruction(Opcode.STORE, rs=Reg.T2.value, rt=Reg.T1.value))
-
-    def _gen_emit(self):
-        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
-        self.code.append(Instruction(Opcode.OUT, rs=Reg.T1.value))
-
-    def _gen_key(self):
-        self.code.append(Instruction(Opcode.IN, rt=Reg.T1.value))
-        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
-
-    def _gen_print_num(self):
-        self.code.append(Instruction(Opcode.POP, rt=Reg.T1.value))
-        self.code.append(Instruction(Opcode.OUT, rs=Reg.T1.value))
-
-    def _gen_exit(self):
-        """Генерировать exit (досрочный выход из слова)"""
-        self.code.append(Instruction(Opcode.RET))
-
-    def _gen_loop_index(self):
-        """Генерировать i (индекс цикла) - упрощенная версия"""
-
-        self.code.append(Instruction(Opcode.LI, rt=Reg.T1.value, imm=0))
-        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
-
-    def _gen_loop_index2(self):
-        """Генерировать j (внешний индекс цикла)"""
-        self.code.append(Instruction(Opcode.LI, rt=Reg.T1.value, imm=0))
-        self.code.append(Instruction(Opcode.PUSH, rs=Reg.T1.value))
+        begin_addr = self.begin_stack.pop()
+        self.code.append(Instruction(Opcode.JMP, addr=begin_addr, is_label=True))
+        return i + 1
 
     def _new_label(self) -> int:
         label = self.label_count
@@ -556,12 +693,11 @@ class FixedForthCompiler:
         self.labels[label] = len(self.code) * 4
 
     def _resolve_labels(self):
-        """Безопасное разрешение меток"""
         for instr in self.code:
             if hasattr(instr, 'is_label') and instr.is_label:
                 if instr.addr in self.labels:
                     resolved_addr = self.labels[instr.addr]
-                    if instr.opcode in [Opcode.JMP, Opcode.CALL]:
+                    if instr.opcode == Opcode.JMP:
                         instr.addr = resolved_addr & 0x3FFFFFF
                     else:
                         instr.addr = resolved_addr & 0xFFFF
@@ -571,9 +707,9 @@ class FixedForthCompiler:
                     instr.imm = resolved_addr & 0xFFFF
 
 
-class FixedForthTranslator:
+class RiscForthTranslator:
     def __init__(self):
-        self.compiler = FixedForthCompiler()
+        self.compiler = RiscForthCompiler()
 
     def translate_file(self, source_path: str, output_path: str):
         with open(source_path, 'r', encoding='utf-8') as f:
@@ -582,7 +718,7 @@ class FixedForthTranslator:
         print(f"Исходный код:\n{source}\n")
 
         tokens = tokenize(source)
-        print(f"Токены: {[(t.type, t.value) for t in tokens[:20]]}\n")  # показать первые 20
+        print(f"Токены: {[(t.type, t.value) for t in tokens[:20]]}\n")
 
         try:
             instructions = self.compiler.compile(tokens)
@@ -590,32 +726,17 @@ class FixedForthTranslator:
             print(f"Ошибка компиляции: {e}")
             raise
 
-        try:
-            with open(output_path, 'wb') as f:
-                for instr in instructions:
-                    try:
-                        f.write(instr.to_binary())
-                    except Exception as e:
-                        print(f"Ошибка записи инструкции: {instr}")
-                        print(f"Детали: {e}")
-                        raise
-        except Exception as e:
-            print(f"Ошибка записи файла: {e}")
-            raise
+        with open(output_path, 'wb') as f:
+            for instr in instructions:
+                f.write(instr.to_binary())
 
-        try:
-            with open(output_path + '.hex', 'w', encoding='utf-8') as f:
-                f.write(f"; Fixed Forth Compiler Output\n")
-                f.write(f"; Source: {source_path}\n")
-                f.write(f"; Instructions: {len(instructions)}\n\n")
+        with open(output_path + '.hex', 'w', encoding='utf-8') as f:
+            f.write(f"; RISC Forth Compiler Output\n")
+            f.write(f"; Source: {source_path}\n")
+            f.write(f"; Instructions: {len(instructions)}\n\n")
 
-                for i, instr in enumerate(instructions):
-                    try:
-                        f.write(instr.to_hex(i * 4) + '\n')
-                    except Exception as e:
-                        f.write(f"0x{i * 4:04X}: ERROR - {instr.opcode}\n")
-        except Exception as e:
-            print(f"Ошибка создания листинга: {e}")
+            for i, instr in enumerate(instructions):
+                f.write(instr.to_hex(i * 4) + '\n')
 
         print(f"Compiled {len(instructions)} instructions")
         print(f"Output: {output_path}")
@@ -624,10 +745,10 @@ class FixedForthTranslator:
 
 def main():
     if len(sys.argv) != 3:
-        print("Usage: python translator_fixed.py <source.forth> <output.bin>")
+        print("Usage: python translator.py <source.forth> <output.bin>")
         sys.exit(1)
 
-    translator = FixedForthTranslator()
+    translator = RiscForthTranslator()
     try:
         translator.translate_file(sys.argv[1], sys.argv[2])
     except Exception as e:
