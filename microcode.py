@@ -187,6 +187,22 @@ MICROCODE = {
         MicroInstruction(MicroOp.PC_INC)
     ],
 
+    Opcode.LOADI: [
+        MicroInstruction(MicroOp.WRITE_REG, dst="rt", src="imm"),  # RT = IMM
+        MicroInstruction(MicroOp.PC_INC),
+    ],
+
+    Opcode.LUI: [
+        MicroInstruction(MicroOp.SHIFT_LEFT, src="imm", dst="temp", imm=16),  # TEMP = IMM << 16
+        MicroInstruction(MicroOp.WRITE_REG, dst="rt", src="temp"),  # RT = TEMP
+        MicroInstruction(MicroOp.PC_INC),
+    ],
+
+    Opcode.ORI: [
+        MicroInstruction(MicroOp.ALU_OR, src="rs", dst="rt", imm="imm"),  # RT = RS | IMM
+        MicroInstruction(MicroOp.PC_INC),
+    ],
+
     # POP rt - снять со стека
     Opcode.POP: [
         # μ1: SP--
