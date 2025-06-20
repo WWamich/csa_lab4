@@ -28,65 +28,29 @@ class Opcode(Enum):
     ORI = 0x15
     SHL = 0x16
     SHR = 0x17
-
+    CALL = 0x18
+    RET = 0x19
 
 
 class Reg(Enum):
     """Регистры процессора"""
-    ZERO = 0  # 0
-    SP = 1  # stack pointer
-    T1 = 2  # temporary 1
-    T2 = 3  # temporary 2
-    A0 = 4  # argument 0
-    A1 = 5  # argument 1
-    V0 = 6  # return value 0
-    V1 = 7  # return value 1
-    RSP = 1  # return stack pointer (alias для SP)
-    BASE = 4  # base pointer (alias для A0)
-    PC = 6  # program counter (alias для V0)
+    ZERO = 0
+    SP = 1
+    T1 = 2
+    T2 = 3
+    A0 = 4
+    A1 = 5
+    V0 = 6
+    V1 = 7
 
-
-# Константы памяти и I/O
-MEMORY_SIZE = 65536  # 64K памяти
+MEMORY_SIZE = 65536
 IO_INPUT_PORT = 0x8000
 IO_OUTPUT_PORT = 0x8001
 
 
-def format_instruction(opcode: Opcode, rs=0, rt=0, rd=0, imm=0, addr=0) -> str:
-    """Форматировать инструкцию для отладки"""
-    if opcode == Opcode.LOAD:
-        return f"LOAD R{rt}, R{rs}+{imm}"
-    elif opcode == Opcode.STORE:
-        return f"STORE R{rs}, R{rt}+{imm}"
-    elif opcode in [Opcode.ADD, Opcode.SUB, Opcode.MUL, Opcode.DIV, Opcode.MOD,
-                    Opcode.AND, Opcode.OR, Opcode.XOR, Opcode.CMP, Opcode.SHL, Opcode.SHR]:
-        return f"{opcode.name} R{rd}, R{rs}, R{rt}"
-    elif opcode == Opcode.PUSH:
-        return f"PUSH R{rs}"
-    elif opcode == Opcode.POP:
-        return f"POP R{rt}"
-    elif opcode == Opcode.JZ:
-        return f"JZ R{rs}, 0x{imm:04X}"
-    elif opcode == Opcode.JMP:
-        return f"JMP 0x{addr:04X}"
-    elif opcode == Opcode.IN:
-        return f"IN R{rt}, 0x{imm:04X}"
-    elif opcode == Opcode.OUT:
-        return f"OUT R{rs}, 0x{imm:04X}"
-    elif opcode == Opcode.LOADI:
-        return f"LOADI R{rt}, {imm}"
-    elif opcode == Opcode.LUI:
-        return f"LUI R{rt}, 0x{imm:04X}"
-    elif opcode == Opcode.ORI:
-        return f"ORI R{rt}, R{rs}, 0x{imm:04X}"
-    else:
-        return opcode.name
-
-
 class Instruction:
     """Представление машинной инструкции"""
-
-    def __init__(self, opcode: Opcode, rs=0, rt=0, rd=0, imm=0, addr=0, is_label=False):
+    def __init__(self, opcode: Opcode, rs=0, rt=0, rd=0, imm=0, addr=0, is_label=False, label_name=""):
         self.opcode = opcode
         self.rs = rs
         self.rt = rt
@@ -94,88 +58,61 @@ class Instruction:
         self.imm = imm
         self.addr = addr
         self.is_label = is_label
+        self.label_name = label_name
 
     def to_binary(self) -> bytes:
-        """ИСПРАВЛЕННАЯ упаковка в 32-битный формат"""
+        """ИСПРАВЛЕННАЯ упаковка в 32-битный формат с учетом всех типов"""
+        opcode_bits = (self.opcode.value & 0x3F) << 26
+        word = 0
 
-        def safe_uint32(value):
-            return int(value) & 0xFFFFFFFF
-
-        def safe_uint16(value):
-            return int(value) & 0xFFFF
-
-        def safe_uint21(value):
-            return int(value) & 0x1FFFFF
-
-        def safe_uint26(value):
-            return int(value) & 0x3FFFFFF
-        # J-type для переходов
-        if self.opcode in [Opcode.JMP]:
-            opcode_bits = (self.opcode.value & 0x3F) << 26
-            addr_bits = safe_uint26(self.addr)
+        # J-type (JMP, CALL) - 26 бит на адрес
+        if self.opcode in [Opcode.JMP, Opcode.CALL]:
+            addr_bits = int(self.addr) & 0x3FFFFFF
             word = opcode_bits | addr_bits
-        # L-type для LOADI (21-битный immediate)
-        elif self.opcode in [Opcode.LOADI]:
-            opcode_bits = (self.opcode.value & 0x3F) << 26  # биты 26-31
-            rt_bits = (self.rt & 0x1F) << 21  # биты 21-25 ← ИСПРАВЛЕНО!
-            imm_bits = safe_uint21(self.imm)  # биты 0-20
-            word = opcode_bits | rt_bits | imm_bits
-        # U-type для LUI (16-битный immediate в старшие биты)
-        elif self.opcode in [Opcode.LUI]:
-            opcode_bits = (self.opcode.value & 0x3F) << 26
-            rt_bits = (self.rt & 0x1F) << 21
-            imm_bits = safe_uint16(self.imm)
-            word = opcode_bits | rt_bits | imm_bits
-        # I-type для команд с immediate
+        # I-type (LOAD, STORE, JZ, IN, OUT, ORI) - 16 бит на imm
         elif self.opcode in [Opcode.LOAD, Opcode.STORE, Opcode.JZ, Opcode.IN, Opcode.OUT, Opcode.ORI]:
-            opcode_bits = (self.opcode.value & 0x3F) << 26
             rs_bits = (self.rs & 0x1F) << 21
             rt_bits = (self.rt & 0x1F) << 16
-            imm_bits = safe_uint16(self.imm)
+            imm_bits = int(self.imm) & 0xFFFF
             word = opcode_bits | rs_bits | rt_bits | imm_bits
-        # R-type для остальных
+        # L-type (LOADI) - 21 бит на imm
+        elif self.opcode == Opcode.LOADI:
+            rt_bits = (self.rt & 0x1F) << 21
+            imm_bits = int(self.imm) & 0x1FFFFF
+            word = opcode_bits | rt_bits | imm_bits
+        # U-type (LUI)
+        elif self.opcode == Opcode.LUI:
+            rt_bits = (self.rt & 0x1F) << 16
+            imm_bits = int(self.imm) & 0xFFFF
+            word = opcode_bits | rt_bits | imm_bits
+        # R-type (остальные)
         else:
-            opcode_bits = (self.opcode.value & 0x3F) << 26
             rs_bits = (self.rs & 0x1F) << 21
             rt_bits = (self.rt & 0x1F) << 16
             rd_bits = (self.rd & 0x1F) << 11
             word = opcode_bits | rs_bits | rt_bits | rd_bits
 
-        word = safe_uint32(word)
         return struct.pack('>I', word)
 
     def to_hex(self, addr: int) -> str:
-        """Листинг команды"""
         hex_code = self.to_binary().hex().upper()
-
-        if self.opcode == Opcode.LOAD:
-            mnemonic = f"LOAD R{self.rt}, R{self.rs}+{self.imm}"
-        elif self.opcode == Opcode.STORE:
-            mnemonic = f"STORE R{self.rs}, R{self.rt}+{self.imm}"
-        elif self.opcode in [Opcode.ADD, Opcode.SUB, Opcode.MUL, Opcode.DIV, Opcode.MOD,
-                             Opcode.AND, Opcode.OR, Opcode.XOR, Opcode.CMP, Opcode.SHL, Opcode.SHR]:
-            mnemonic = f"{self.opcode.name} R{self.rd}, R{self.rs}, R{self.rt}"
-        elif self.opcode == Opcode.PUSH:
-            mnemonic = f"PUSH R{self.rs}"
-        elif self.opcode == Opcode.POP:
-            mnemonic = f"POP R{self.rt}"
+        mnemonic = self.opcode.name
+        if self.opcode in [Opcode.ADD, Opcode.SUB, Opcode.MUL, Opcode.DIV, Opcode.MOD, Opcode.AND, Opcode.OR, Opcode.XOR, Opcode.CMP, Opcode.SHL, Opcode.SHR, Opcode.RET]:
+             mnemonic = f"{self.opcode.name} R{self.rd}, R{self.rs}, R{self.rt}"
+        elif self.opcode in [Opcode.LOAD, Opcode.STORE]:
+            mnemonic = f"{self.opcode.name} R{self.rt}, {self.imm}(R{self.rs})"
+        elif self.opcode in [Opcode.JMP, Opcode.CALL]:
+            mnemonic = f"{self.opcode.name} 0x{self.addr:04X}"
         elif self.opcode == Opcode.JZ:
             mnemonic = f"JZ R{self.rs}, 0x{self.imm:04X}"
-        elif self.opcode == Opcode.JMP:
-            mnemonic = f"JMP 0x{self.addr:04X}"
-        elif self.opcode == Opcode.IN:
-            mnemonic = f"IN R{self.rt}, 0x{self.imm:04X}"
-        elif self.opcode == Opcode.OUT:
-            mnemonic = f"OUT R{self.rs}, 0x{self.imm:04X}"
+        elif self.opcode in [Opcode.PUSH, Opcode.POP]:
+            mnemonic = f"{self.opcode.name} R{self.rs or self.rt}"
         elif self.opcode == Opcode.LOADI:
             mnemonic = f"LOADI R{self.rt}, {self.imm}"
         elif self.opcode == Opcode.LUI:
             mnemonic = f"LUI R{self.rt}, 0x{self.imm:04X}"
         elif self.opcode == Opcode.ORI:
-            mnemonic = f"ORI R{self.rt}, R{self.rs}, 0x{self.imm:04X}"
-        else:
-            mnemonic = self.opcode.name
-
+            mnemonic = f"ORI R{self.rt}, R{self.rs}, {self.imm}"
         return f"0x{addr:04X}: {hex_code}  {mnemonic}"
 
     def __repr__(self):
