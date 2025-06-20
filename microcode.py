@@ -1,365 +1,238 @@
 from enum import Enum
-from typing import List
-from isa import Opcode
+from typing import List, Dict
+
 
 class MicroOp(Enum):
-    """Микроинструкции для микрокодного блока управления"""
-    # Управление регистрами
-    REG_LOAD = "reg_load"  # загрузить в регистр
-    REG_STORE = "reg_store"  # сохранить из регистра
-    REG_COPY = "reg_copy"  # копировать регистр в регистр
+    """Микрооперации"""
 
-    # Операции АЛУ
-    ALU_ADD = "alu_add"  # сложение
-    ALU_SUB = "alu_sub"  # вычитание
-    ALU_MUL = "alu_mul"  # умножение
-    ALU_DIV = "alu_div"  # деление
-    ALU_MOD = "alu_mod"  # остаток
-    ALU_AND = "alu_and"  # битовое И
-    ALU_OR = "alu_or"  # битовое ИЛИ
-    ALU_XOR = "alu_xor"  # битовое исключающее ИЛИ
-    ALU_CMP = "alu_cmp"  # сравнение
+    NOP = "nop"
+    HALT = "halt"
 
-    # Управление памятью/кэшем
-    MEM_READ = "mem_read"  # чтение из памяти
-    MEM_WRITE = "mem_write"  # запись в память
-    CACHE_CHECK = "cache_check"  # проверка кэша
-    CACHE_WAIT = "cache_wait"  # ожидание кэша
+    # Управление PC
+    PC_INC = "pc_inc"
+    PC_LOAD = "pc_load"
 
-    # Управление стеком
-    STACK_PUSH = "stack_push"  # положить на стек
-    STACK_POP = "stack_pop"  # снять со стека
-    STACK_PEEK = "stack_peek"  # прочитать со стека без удаления
+    # АЛУ
+    ALU_ADD = "alu_add"
+    ALU_SUB = "alu_sub"
+    ALU_MUL = "alu_mul"
+    ALU_DIV = "alu_div"
+    ALU_MOD = "alu_mod"
+    ALU_AND = "alu_and"
+    ALU_OR = "alu_or"
+    ALU_XOR = "alu_xor"
+    ALU_CMP = "alu_cmp"
+    ALU_SHL = "alu_shl"
+    ALU_SHR = "alu_shr"
 
-    # Управление потоком
-    PC_INC = "pc_inc"  # PC++
-    PC_LOAD = "pc_load"  # загрузить PC
-    JUMP = "jump"  # переход
-    JUMP_COND = "jump_cond"  # условный переход
+    # Память и кэш
+    CACHE_CHECK = "cache_check"
+    CACHE_WAIT = "cache_wait"
+    MEM_READ = "mem_read"
+    MEM_WRITE = "mem_write"
 
-    # I/O операции
-    IO_READ = "io_read"  # чтение с порта
-    IO_WRITE = "io_write"  # запись в порт
+    # Стэк
+    STACK_PUSH = "stack_push"
+    STACK_POP = "stack_pop"
 
-    # Управляющие сигналы
-    NOP = "nop"  # нет операции
-    HALT = "halt"  # остановка
-    FETCH = "fetch"  # выборка инструкции
+    # Переходы
+    JUMP_COND = "jump_cond"
+
+    # MMI/O
+    IO_READ = "io_read"
+    IO_WRITE = "io_write"
+
+    LOAD_IMM = "load_imm"
+    SHIFT_LEFT = "shift_left"
 
 
 class MicroInstruction:
-    """Одна микроинструкция"""
+    """Микроинструкция"""
 
     def __init__(self, op: MicroOp, src=None, dst=None, imm=None, condition=None):
         self.op = op
-        self.src = src  # источник (регистр/адрес)
-        self.dst = dst  # назначение (регистр/адрес)
-        self.imm = imm  # immediate значение
-        self.condition = condition  # условие для условных переходов
+        self.src = src
+        self.dst = dst
+        self.imm = imm
+        self.condition = condition
 
     def __repr__(self):
-        parts = [self.op.value]
-        if self.src:
+        parts = [f"μ({self.op.value}"]
+        if self.src is not None:
             parts.append(f"src={self.src}")
-        if self.dst:
+        if self.dst is not None:
             parts.append(f"dst={self.dst}")
         if self.imm is not None:
             parts.append(f"imm={self.imm}")
-        if self.condition:
-            parts.append(f"cond={self.condition}")
-        return f"μ({', '.join(parts)})"
+        if self.condition is not None:
+            parts.append(f"condition={self.condition}")
+        return ", ".join(parts) + ")"
 
 
 class SimpleCache:
-    """Простой кэш с прямым отображением"""
-
-    def __init__(self, size=16):
+    """Простой кэш"""
+    def __init__(self, size: int = 16):
         self.size = size
-        self.valid = [False] * size
-        self.tags = [0] * size
-        self.data = [0] * size
-
-        # Статистика
+        self.data: Dict[int, int] = {}
+        self.access_order: List[int] = []
         self.hits = 0
         self.misses = 0
 
-    def get_index(self, addr: int) -> int:
-        """Получить индекс в кэше по адресу"""
-        return (addr // 4) % self.size  # word-aligned доступ
-
-    def get_tag(self, addr: int) -> int:
-        """Получить тег по адресу"""
-        return addr // (self.size * 4)
-
     def access(self, addr: int) -> tuple[bool, int]:
-        """
-        Обратиться к кэшу
-        Возвращает: (hit, data_or_cycles)
-        hit=True: попадание, data_or_cycles = данные
-        hit=False: промах, data_or_cycles = количество тактов ожидания
-        """
-        index = self.get_index(addr)
-        tag = self.get_tag(addr)
-
-        # Проверяем попадание
-        if self.valid[index] and self.tags[index] == tag:
+        """Доступ к кэшу. Возвращает (hit, data)"""
+        if addr in self.data:
             self.hits += 1
-            return True, self.data[index]
+            self.access_order.remove(addr)
+            self.access_order.append(addr)
+            return True, self.data[addr]
         else:
-            # Промах - загружаем из "памяти"
             self.misses += 1
-            self.valid[index] = True
-            self.tags[index] = tag
-            self.data[index] = addr & 0xFFFF  # данные из "памяти"
-            return False, 10  # 10 тактов ожидания
+            return False, 0
 
-    def write(self, addr: int, value: int):
-        """Записать в кэш"""
-        index = self.get_index(addr)
-        tag = self.get_tag(addr)
+    def write(self, addr: int, data: int):
+        """Запись в кэш"""
+        if len(self.data) >= self.size and addr not in self.data:
+            oldest = self.access_order.pop(0)
+            del self.data[oldest]
 
-        self.valid[index] = True
-        self.tags[index] = tag
-        self.data[index] = value
+        self.data[addr] = data
+        if addr in self.access_order:
+            self.access_order.remove(addr)
+        self.access_order.append(addr)
 
     def get_stats(self) -> dict:
         """Получить статистику кэша"""
         total = self.hits + self.misses
-        hit_rate = self.hits / total if total > 0 else 0
+        hit_rate = self.hits / total if total > 0 else 0.0
         return {
             "hits": self.hits,
             "misses": self.misses,
-            "hit_rate": hit_rate,
-            "total_accesses": total
+            "hit_rate": hit_rate
         }
 
 
-# Импортируем из translator.py чтобы избежать дублирования
-
-# Микрокод для каждой RISC команды
-MICROCODE = {
-    # NOP - ничего не делать
-    Opcode.NOP: [
-        MicroInstruction(MicroOp.NOP),
-        MicroInstruction(MicroOp.PC_INC)
+MICROCODE: Dict[str, List[MicroInstruction]] = {
+    "NOP": [
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # HALT - остановка
-    Opcode.HALT: [
-        MicroInstruction(MicroOp.HALT)
+    "HALT": [
+        MicroInstruction(MicroOp.HALT),
     ],
 
-    # LOAD rs, rt, imm - загрузить из памяти
-    Opcode.LOAD: [
-        # μ1: вычислить адрес = rs + imm
-        MicroInstruction(MicroOp.ALU_ADD, src="rs", dst="TEMP_ADDR", imm="imm"),
-        # μ2: проверить кэш
-        MicroInstruction(MicroOp.CACHE_CHECK, src="TEMP_ADDR"),
-        # μ3: если промах - ждать 10 тактов
-        MicroInstruction(MicroOp.CACHE_WAIT),
-        # μ4: загрузить данные в rt
-        MicroInstruction(MicroOp.MEM_READ, src="TEMP_ADDR", dst="rt"),
-        # μ5: PC++
-        MicroInstruction(MicroOp.PC_INC)
+    "LOADI": [
+        MicroInstruction(MicroOp.LOAD_IMM, dst="rt", imm="imm"),
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # STORE rs, rt, imm - сохранить в память
-    Opcode.STORE: [
-        # μ1: вычислить адрес = rt + imm
-        MicroInstruction(MicroOp.ALU_ADD, src="rt", dst="TEMP_ADDR", imm="imm"),
-        # μ2: проверить кэш
-        MicroInstruction(MicroOp.CACHE_CHECK, src="TEMP_ADDR"),
-        # μ3: если промах - ждать 10 тактов
-        MicroInstruction(MicroOp.CACHE_WAIT),
-        # μ4: сохранить rs в память
-        MicroInstruction(MicroOp.MEM_WRITE, src="rs", dst="TEMP_ADDR"),
-        # μ5: PC++
-        MicroInstruction(MicroOp.PC_INC)
+    "LUI": [
+        MicroInstruction(MicroOp.SHIFT_LEFT, dst="rt", src=16, imm="imm"),
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # PUSH rs - положить на стек
-    Opcode.PUSH: [
-        # μ1: memory[SP] = rs
+    "ORI": [
+        MicroInstruction(MicroOp.ALU_OR, src="rs", dst="rt", imm="imm"),
+        MicroInstruction(MicroOp.PC_INC),
+    ],
+
+    "PUSH": [
         MicroInstruction(MicroOp.STACK_PUSH, src="rs"),
-        # μ2: SP++
-        MicroInstruction(MicroOp.ALU_ADD, src="SP", dst="SP", imm=1),
-        # μ3: PC++
-        MicroInstruction(MicroOp.PC_INC)
-    ],
-
-    Opcode.LOADI: [
-        MicroInstruction(MicroOp.WRITE_REG, dst="rt", src="imm"),  # RT = IMM
         MicroInstruction(MicroOp.PC_INC),
     ],
 
-    Opcode.LUI: [
-        MicroInstruction(MicroOp.SHIFT_LEFT, src="imm", dst="temp", imm=16),  # TEMP = IMM << 16
-        MicroInstruction(MicroOp.WRITE_REG, dst="rt", src="temp"),  # RT = TEMP
-        MicroInstruction(MicroOp.PC_INC),
-    ],
-
-    Opcode.ORI: [
-        MicroInstruction(MicroOp.ALU_OR, src="rs", dst="rt", imm="imm"),  # RT = RS | IMM
-        MicroInstruction(MicroOp.PC_INC),
-    ],
-
-    # POP rt - снять со стека
-    Opcode.POP: [
-        # μ1: SP--
-        MicroInstruction(MicroOp.ALU_SUB, src="SP", dst="SP", imm=1),
-        # μ2: rt = memory[SP]
+    "POP": [
         MicroInstruction(MicroOp.STACK_POP, dst="rt"),
-        # μ3: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # ADD rs, rt, rd - сложение
-    Opcode.ADD: [
-        # μ1: rd = rs + rt
+    "ADD": [
         MicroInstruction(MicroOp.ALU_ADD, src="rs", dst="rd", imm="rt"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # SUB rs, rt, rd - вычитание
-    Opcode.SUB: [
-        # μ1: rd = rs - rt
+    "SUB": [
         MicroInstruction(MicroOp.ALU_SUB, src="rs", dst="rd", imm="rt"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # MUL rs, rt, rd - умножение
-    Opcode.MUL: [
-        # μ1: rd = rs * rt
+    "MUL": [
         MicroInstruction(MicroOp.ALU_MUL, src="rs", dst="rd", imm="rt"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # DIV rs, rt, rd - деление
-    Opcode.DIV: [
-        # μ1: rd = rs / rt
+    "DIV": [
         MicroInstruction(MicroOp.ALU_DIV, src="rs", dst="rd", imm="rt"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # MOD rs, rt, rd - остаток от деления
-    Opcode.MOD: [
-        # μ1: rd = rs % rt
+    "MOD": [
         MicroInstruction(MicroOp.ALU_MOD, src="rs", dst="rd", imm="rt"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # AND rs, rt, rd - битовое И
-    Opcode.AND: [
-        # μ1: rd = rs & rt
+    "AND": [
         MicroInstruction(MicroOp.ALU_AND, src="rs", dst="rd", imm="rt"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # OR rs, rt, rd - битовое ИЛИ
-    Opcode.OR: [
-        # μ1: rd = rs | rt
+    "OR": [
         MicroInstruction(MicroOp.ALU_OR, src="rs", dst="rd", imm="rt"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # XOR rs, rt, rd - битовое исключающее ИЛИ
-    Opcode.XOR: [
-        # μ1: rd = rs ^ rt
+    "XOR": [
         MicroInstruction(MicroOp.ALU_XOR, src="rs", dst="rd", imm="rt"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # CMP rs, rt, rd - сравнение (==)
-    Opcode.CMP: [
-        # μ1: rd = (rs == rt) ? 1 : 0
+    "CMP": [
         MicroInstruction(MicroOp.ALU_CMP, src="rs", dst="rd", imm="rt"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # JMP addr - безусловный переход
-    Opcode.JMP: [
-        # μ1: PC = addr
-        MicroInstruction(MicroOp.PC_LOAD, imm="addr")
+    "LOAD": [
+        MicroInstruction(MicroOp.ALU_ADD, src="rs", dst="TEMP_ADDR", imm="imm"),
+        MicroInstruction(MicroOp.CACHE_CHECK),
+        MicroInstruction(MicroOp.MEM_READ),
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # JZ rs, imm - условный переход
-    Opcode.JZ: [
-        # μ1: если rs == 0, то PC = imm, иначе PC++
-        MicroInstruction(MicroOp.JUMP_COND, src="rs", imm="imm", condition="zero"),
-        # μ2: PC++ (если переход не выполнен)
-        MicroInstruction(MicroOp.PC_INC)
+    "STORE": [
+        MicroInstruction(MicroOp.ALU_ADD, src="rt", dst="TEMP_ADDR", imm="imm"),
+        MicroInstruction(MicroOp.MEM_WRITE),
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # IN rt, imm - ввод с порта
-    Opcode.IN: [
-        # μ1: rt = input[port]
+    "JMP": [
+        MicroInstruction(MicroOp.PC_LOAD),
+    ],
+
+    "JZ": [
+        MicroInstruction(MicroOp.JUMP_COND, condition="zero"),
+    ],
+
+    "IN": [
         MicroInstruction(MicroOp.IO_READ, dst="rt", imm="imm"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
     ],
 
-    # OUT rs, imm - вывод в порт
-    Opcode.OUT: [
-        # μ1: output[port] = rs
+    "OUT": [
         MicroInstruction(MicroOp.IO_WRITE, src="rs", imm="imm"),
-        # μ2: PC++
-        MicroInstruction(MicroOp.PC_INC)
+        MicroInstruction(MicroOp.PC_INC),
+    ],
+    "SHL": [
+        MicroInstruction(MicroOp.ALU_SHL, src="rs", dst="rd", imm="rt"),
+        MicroInstruction(MicroOp.PC_INC),
+    ],
+
+    "SHR": [
+        MicroInstruction(MicroOp.ALU_SHR, src="rs", dst="rd", imm="rt"),
+        MicroInstruction(MicroOp.PC_INC),
     ]
 }
 
 
-def get_microcode(opcode: Opcode) -> List[MicroInstruction]:
+def get_microcode(opcode) -> List[MicroInstruction]:
     """Получить микрокод для инструкции"""
-    return MICROCODE.get(opcode, [MicroInstruction(MicroOp.NOP)])
-
-
-def print_microcode_summary():
-    """Вывести сводку по микрокоду"""
-    print("📋 МИКРОКОД RISC ПРОЦЕССОРА")
-    print("=" * 50)
-
-    total_micro_ops = 0
-    for opcode, micro_instructions in MICROCODE.items():
-        print(f"{opcode.name:6} : {len(micro_instructions)} μ-ops")
-        for i, micro_op in enumerate(micro_instructions, 1):
-            print(f"      μ{i}: {micro_op}")
-        total_micro_ops += len(micro_instructions)
-        print()
-
-    print(f"📊 Всего RISC команд: {len(MICROCODE)}")
-    print(f"🔧 Всего микроопераций: {total_micro_ops}")
-    print(f"📈 Среднее μ-ops на команду: {total_micro_ops / len(MICROCODE):.1f}")
-
-
-if __name__ == "__main__":
-    # Тестирование микрокода
-    print_microcode_summary()
-
-    # Пример использования кэша - лучший тест
-    print("\n🧪 ТЕСТ КЭША")
-    print("=" * 30)
-    cache = SimpleCache(size=4)
-
-    # Серия обращений к памяти - теперь с попаданиями
-    addresses = [0x1000, 0x1004, 0x1008, 0x100C, 0x1000, 0x1004, 0x1010, 0x1000]
-
-    for addr in addresses:
-        hit, result = cache.access(addr)
-        status = "HIT " if hit else "MISS"
-        cycles = 1 if hit else result
-        print(f"Обращение к 0x{addr:04X}: {status} ({cycles} тактов)")
-
-    stats = cache.get_stats()
-    print(f"\n📊 Статистика кэша:")
-    print(f"Попадания: {stats['hits']}")
-    print(f"Промахи: {stats['misses']}")
-    print(f"Коэффициент попаданий: {stats['hit_rate']:.2%}")
+    opcode_name = opcode.name if hasattr(opcode, 'name') else str(opcode)
+    return MICROCODE.get(opcode_name, [MicroInstruction(MicroOp.NOP)])
