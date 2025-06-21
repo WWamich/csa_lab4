@@ -479,6 +479,7 @@ class RiscForthCompiler:
             self.if_stack.append(else_jump_addr)
             logging.debug(f"ELSE: исправили IF[{if_jump_addr}], новый переход {else_jump_addr}")
 
+
         elif token.type == 'THEN':
             if not self.if_stack:
                 logging.error("THEN без соответствующего IF/ELSE")
@@ -486,7 +487,11 @@ class RiscForthCompiler:
 
             jump_addr = self.if_stack.pop()
             end_addr = len(self.code)
-            self.code[jump_addr].imm = end_addr
+            instruction_to_patch = self.code[jump_addr]
+            if instruction_to_patch.opcode == Opcode.JMP:
+                instruction_to_patch.addr = end_addr
+            else:
+                instruction_to_patch.imm = end_addr
             logging.debug(f"THEN: исправили переход[{jump_addr}] -> {end_addr}")
 
         elif token.type == 'WORD':
