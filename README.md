@@ -250,7 +250,9 @@ Forth-операции сравнения (`=`, `<>`, `<`, `>`, `<=`, `>=`) ре
 ![img.png](img.png)
 Control Unit:
 ![img_1.png](img_1.png)
-DataPath:![img_2.png](img_2.png)
+
+DataPath:
+![img_2.png](img_2.png)
 
 
 ## Тестирование
