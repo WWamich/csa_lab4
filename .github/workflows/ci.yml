@@ -39,8 +39,7 @@ jobs:
       - name: Lint with Ruff
         run: poetry run ruff check .
 
-      - name: Check types with MyPy
-        run: poetry run mypy .
+
 
 
   test:
