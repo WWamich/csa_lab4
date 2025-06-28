@@ -1,12 +1,13 @@
+import base64
 import contextlib
 import io
 import logging
 import os
-import tempfile
-import base64
 import re
+import tempfile
 
 import pytest
+
 import machine
 import translator
 
@@ -15,9 +16,7 @@ MAX_LOG_LENGTH = 4000
 
 def sanitize_output(text: str) -> str:
     """Заменяет нулевые символы (\x00), которые запрещены в YAML, на читаемый плейсхолдер."""
-    return text.replace('\x00', '<NUL>')
-
-
+    return text.replace("\x00", "<NUL>")
 
 
 @pytest.mark.golden_test("golden/*.yml")
@@ -47,24 +46,28 @@ def test_translator_and_machine(golden, caplog):
                 binary_code=binary_code,
                 input_str=golden["in_stdin"],
                 limit=limit,
-                cache_size=cache_size
+                cache_size=cache_size,
             )
             print(f"\nSimulation output: '{output}'")
             print(f"Total ticks: {ticks}")
 
-
         with open(target_path, "rb") as f:
             binary_code_read = f.read()
-        binary_code_b64 = base64.b64encode(binary_code_read).decode('utf-8')
+        binary_code_b64 = base64.b64encode(binary_code_read).decode("utf-8")
 
         hex_listing_path = target_path + ".txt"
-        with open(hex_listing_path, "r", encoding="utf-8", newline='') as f:
+        with open(hex_listing_path, "r", encoding="utf-8", newline="") as f:
             hex_code_raw = f.read()
-        hex_code_normalized = re.sub(r"; Source: .*", "; Source: <source_path>", hex_code_raw)
+        hex_code_normalized = re.sub(
+            r"; Source: .*", "; Source: <source_path>", hex_code_raw
+        )
 
         stdout_raw = stdout_io.getvalue()
-        stdout_normalized = re.sub(r"Successfully translated .*",
-                                   "Successfully translated <source_path> to <target_path>", stdout_raw)
+        stdout_normalized = re.sub(
+            r"Successfully translated .*",
+            "Successfully translated <source_path> to <target_path>",
+            stdout_raw,
+        )
 
         log_raw_text = caplog.text
         log_sanitized = sanitize_output(log_raw_text)

@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from enum import Enum, auto
+
 from isa import Opcode
 
 
@@ -30,11 +32,15 @@ class MicroOp(Enum):
     LATCH_A_RT = auto()  # Внутренний регистр АЛU 'A' <- GPR[rt]
     LATCH_A_MDR = auto()  # A <- MDR
     LATCH_A_SP = auto()  # Внутренний регистр АЛУ 'A' <- SP
-    LATCH_A_PC = auto()  # Внутренний регистр АЛУ 'A' <- PC (для сохранения адреса возврата)
+    LATCH_A_PC = (
+        auto()
+    )  # Внутренний регистр АЛУ 'A' <- PC (для сохранения адреса возврата)
 
     LATCH_B_RT = auto()  # Внутренний регистр АЛУ 'B' <- GPR[rt]
     LATCH_B_IMM = auto()  # Внутренний регистр АЛУ 'B' <- IR.imm
-    LATCH_B_CONST_1 = auto()  # Внутренний регистр АЛУ 'B' <- 1 (для инкремента/декремента SP)
+    LATCH_B_CONST_1 = (
+        auto()
+    )  # Внутренний регистр АЛУ 'B' <- 1 (для инкремента/декремента SP)
 
     LATCH_RD_ALU = auto()  # GPR[rd] <- ALU_OUT
     LATCH_RT_ALU = auto()  # GPR[rt] <- ALU_OUT
@@ -87,41 +93,123 @@ def get_microcode_rom() -> dict[Opcode, list[MicroOp]]:
         # --- Системные инструкции ---
         Opcode.NOP: [MicroOp.FINISH_INSTRUCTION],
         Opcode.HALT: [MicroOp.HALT_PROCESSOR],
-
         # --- R-type инструкции ---
-        Opcode.ADD: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_ADD, MicroOp.LATCH_RD_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-        Opcode.SUB: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_SUB, MicroOp.LATCH_RD_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-        Opcode.MUL: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_MUL, MicroOp.LATCH_RD_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-        Opcode.DIV: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_DIV, MicroOp.LATCH_RD_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-        Opcode.MOD: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_MOD, MicroOp.LATCH_RD_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-        Opcode.OR: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_OR, MicroOp.LATCH_RD_ALU,
-                    MicroOp.FINISH_INSTRUCTION],
-        Opcode.AND: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_AND, MicroOp.LATCH_RD_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-        Opcode.XOR: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_XOR, MicroOp.LATCH_RD_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-        Opcode.CMP: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_CMP, MicroOp.LATCH_RD_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-        Opcode.SHL: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_SHL, MicroOp.LATCH_RD_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-        Opcode.SHR: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_RT, MicroOp.ALU_SHR, MicroOp.LATCH_RD_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-
+        Opcode.ADD: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_ADD,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.SUB: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_SUB,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.MUL: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_MUL,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.DIV: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_DIV,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.MOD: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_MOD,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.OR: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_OR,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.AND: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_AND,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.XOR: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_XOR,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.CMP: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_CMP,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.SHL: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_SHL,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.SHR: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_RT,
+            MicroOp.ALU_SHR,
+            MicroOp.LATCH_RD_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
         # --- I-type инструкции ---
-        Opcode.ADDI: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_IMM, MicroOp.ALU_ADD, MicroOp.LATCH_RT_ALU,
-                      MicroOp.FINISH_INSTRUCTION],
-        Opcode.ORI: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_IMM, MicroOp.ALU_OR, MicroOp.LATCH_RT_ALU,
-                     MicroOp.FINISH_INSTRUCTION],
-        Opcode.LUI: [MicroOp.LATCH_B_IMM, MicroOp.ALU_LUI, MicroOp.LATCH_RT_ALU, MicroOp.FINISH_INSTRUCTION],
-        Opcode.LOAD: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_IMM, MicroOp.ALU_ADD, MicroOp.LATCH_MAR_ALU,
-                      MicroOp.CACHE_READ, MicroOp.LATCH_RT_MDR, MicroOp.FINISH_INSTRUCTION],
-        Opcode.STORE: [MicroOp.LATCH_A_RS, MicroOp.LATCH_B_IMM, MicroOp.ALU_ADD, MicroOp.LATCH_MAR_ALU,
-                       MicroOp.LATCH_MDR_RT, MicroOp.CACHE_WRITE, MicroOp.FINISH_INSTRUCTION],
+        Opcode.ADDI: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_IMM,
+            MicroOp.ALU_ADD,
+            MicroOp.LATCH_RT_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.ORI: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_IMM,
+            MicroOp.ALU_OR,
+            MicroOp.LATCH_RT_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.LUI: [
+            MicroOp.LATCH_B_IMM,
+            MicroOp.ALU_LUI,
+            MicroOp.LATCH_RT_ALU,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.LOAD: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_IMM,
+            MicroOp.ALU_ADD,
+            MicroOp.LATCH_MAR_ALU,
+            MicroOp.CACHE_READ,
+            MicroOp.LATCH_RT_MDR,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
+        Opcode.STORE: [
+            MicroOp.LATCH_A_RS,
+            MicroOp.LATCH_B_IMM,
+            MicroOp.ALU_ADD,
+            MicroOp.LATCH_MAR_ALU,
+            MicroOp.LATCH_MDR_RT,
+            MicroOp.CACHE_WRITE,
+            MicroOp.FINISH_INSTRUCTION,
+        ],
         Opcode.JZ: [
             MicroOp.LATCH_A_RT,
             MicroOp.BRANCH_IF_ZERO,
@@ -132,7 +220,6 @@ def get_microcode_rom() -> dict[Opcode, list[MicroOp]]:
             MicroOp.BRANCH_IF_NOT_ZERO,
             MicroOp.FINISH_INSTRUCTION,
         ],
-
         # --- Стек ---
         # PUSH rs: SP <- SP - 1; mem[SP] <- GPR[rs]
         Opcode.PUSH: [

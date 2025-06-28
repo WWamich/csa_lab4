@@ -1,5 +1,5 @@
-from enum import Enum
 import struct
+from enum import Enum
 
 
 class Opcode(Enum):
@@ -7,6 +7,7 @@ class Opcode(Enum):
     Коды операций для нашего RISC-процессора.
     Архитектура фон-Неймановская, стек-ориентированная (для Forth), с кешем.
     """
+
     # --- Системные инструкции ---
     NOP = 0x00  # Ничего не делать
     HALT = 0x01  # Остановка процессора
@@ -48,6 +49,7 @@ class Opcode(Enum):
 
 class Reg(Enum):
     """Регистры процессора. 8 регистров общего назначения."""
+
     ZERO = 0  # Всегда ноль
     SP = 1  # Stack Pointer (указатель на вершину стека)
     RA = 2  # Return Address (адрес возврата для CALL)
@@ -70,7 +72,15 @@ class Instruction:
     Определяет методы для кодирования в бинарный формат.
     """
 
-    def __init__(self, opcode: Opcode, rs: int = 0, rt: int = 0, rd: int = 0, imm: int = 0, addr: int = 0):
+    def __init__(
+        self,
+        opcode: Opcode,
+        rs: int = 0,
+        rt: int = 0,
+        rd: int = 0,
+        imm: int = 0,
+        addr: int = 0,
+    ) -> None:
         self.opcode = opcode
         self.rs = rs
         self.rt = rt
@@ -81,17 +91,44 @@ class Instruction:
     def to_binary(self) -> bytes:
         """Кодирование инструкции в 32-битное слово (big-endian)."""
         opcode_val = self.opcode.value & 0x3F
+        word = 0
 
         # R-type: [opcode:6][rs:5][rt:5][rd:5][unused:11]
-        if self.opcode in [Opcode.ADD, Opcode.SUB, Opcode.MUL, Opcode.DIV, Opcode.MOD,
-                           Opcode.AND, Opcode.OR, Opcode.XOR, Opcode.CMP, Opcode.SHL, Opcode.SHR]:
-            word = (opcode_val << 26) | (self.rs << 21) | (self.rt << 16) | (self.rd << 11)
+        if self.opcode in [
+            Opcode.ADD,
+            Opcode.SUB,
+            Opcode.MUL,
+            Opcode.DIV,
+            Opcode.MOD,
+            Opcode.AND,
+            Opcode.OR,
+            Opcode.XOR,
+            Opcode.CMP,
+            Opcode.SHL,
+            Opcode.SHR,
+        ]:
+            word = (
+                (opcode_val << 26) | (self.rs << 21) | (self.rt << 16) | (self.rd << 11)
+            )
 
         # I-type: [opcode:6][rs:5][rt:5][imm:16]
-        elif self.opcode in [Opcode.ADDI, Opcode.LOAD, Opcode.STORE, Opcode.JZ, Opcode.JNZ, Opcode.LUI, Opcode.ORI]:
+        elif self.opcode in [
+            Opcode.ADDI,
+            Opcode.LOAD,
+            Opcode.STORE,
+            Opcode.JZ,
+            Opcode.JNZ,
+            Opcode.LUI,
+            Opcode.ORI,
+        ]:
             if self.opcode == Opcode.LUI:
                 self.rs = 0
-            word = (opcode_val << 26) | (self.rs << 21) | (self.rt << 16) | (self.imm & 0xFFFF)
+            word = (
+                (opcode_val << 26)
+                | (self.rs << 21)
+                | (self.rt << 16)
+                | (self.imm & 0xFFFF)
+            )
 
         # J-type: [opcode:6][addr:26]
         elif self.opcode in [Opcode.JMP, Opcode.CALL]:
@@ -104,7 +141,7 @@ class Instruction:
         else:  # HALT, NOP, RET
             word = opcode_val << 26
 
-        return struct.pack('>I', word)
+        return struct.pack(">I", word)
 
     def to_hex(self, addr: int) -> str:
         """Генерация строкового представления для листинга (адрес, код, мнемоника)."""
@@ -114,8 +151,19 @@ class Instruction:
 
     def get_mnemonic(self) -> str:
         """Получить мнемонику инструкции."""
-        if self.opcode in [Opcode.ADD, Opcode.SUB, Opcode.MUL, Opcode.DIV, Opcode.MOD,
-                           Opcode.AND, Opcode.OR, Opcode.XOR, Opcode.CMP, Opcode.SHL, Opcode.SHR]:
+        if self.opcode in [
+            Opcode.ADD,
+            Opcode.SUB,
+            Opcode.MUL,
+            Opcode.DIV,
+            Opcode.MOD,
+            Opcode.AND,
+            Opcode.OR,
+            Opcode.XOR,
+            Opcode.CMP,
+            Opcode.SHL,
+            Opcode.SHR,
+        ]:
             return f"{self.opcode.name:<5} R{self.rd}, R{self.rs}, R{self.rt}"
 
         elif self.opcode in [Opcode.ADDI, Opcode.ORI]:

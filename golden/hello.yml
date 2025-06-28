@@ -177,46 +177,46 @@ out_stdout: |
   '
   Total ticks: 4141
 out_log: |-
-  INFO     root:translator.py:577 Patched string 'Hello, World!': LUI@idx=140 imm=0x0000, ORI@idx=141 imm=0x0093 -> final_word_addr=0x00000093
-  INFO     root:machine.py:431 Starting simulation...
-  INFO     root:machine.py:448 TICK:    0 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 0 | Zero: False
-  DEBUG    root:machine.py:291 TICK 1: Executing micro-op: LATCH_MAR_PC
-  INFO     root:machine.py:448 TICK:    1 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 1 | Zero: False
-  DEBUG    root:machine.py:291 TICK 2: Executing micro-op: CACHE_READ
-  WARNING  root:machine.py:61 CACHE: MISS on read at addr 0x0000. Accessing main memory.
-  INFO     root:machine.py:448 TICK:    2 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 8 cycles remaining.
-  INFO     root:machine.py:448 TICK:    3 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 7 cycles remaining.
-  INFO     root:machine.py:448 TICK:    4 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 6 cycles remaining.
-  INFO     root:machine.py:448 TICK:    5 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 5 cycles remaining.
-  INFO     root:machine.py:448 TICK:    6 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 4 cycles remaining.
-  INFO     root:machine.py:448 TICK:    7 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 3 cycles remaining.
-  INFO     root:machine.py:448 TICK:    8 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 2 cycles remaining.
-  INFO     root:machine.py:448 TICK:    9 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 1 cycles remaining.
-  INFO     root:machine.py:448 TICK:   10 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 0 cycles remaining.
-  INFO     root:machine.py:448 TICK:   11 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  DEBUG    root:machine.py:291 TICK 12: Executing micro-op: LATCH_PC_INC
-  INFO     root:machine.py:448 TICK:   12 | PC: 0x0001 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 3 | Zero: False
-  DEBUG    root:machine.py:291 TICK 13: Executing micro-op: LATCH_IR
-  INFO     root:machine.py:448 TICK:   13 | PC: 0x0001 | IR: 0xC800008C (JMP   0x000008C) | SP: 64536 | DSP: 60536 | MicroPC: 4 | Zero: False
-  DEBUG    root:machine.py:291 TICK 14: Executing micro-op: LATCH_PC_ADDR
-  INFO     root:machine.py:298 JMP/CALL: Setting PC to 0x008C
-  INFO     root:machine.py:448 TICK:   14 | PC: 0x008C | IR: 0xC800008C (JMP   0x000008C) | SP: 64536 | DSP: 60536 | MicroPC: 5 | Zero: False
-  DEBUG    root:machine.py:291 TICK 15: Executing micro-op: FINISH_INSTRUCTION
-  INFO     root:machine.py:448 TICK:   15 | PC: 0x008C | IR: 0xC800008C (JMP   0x000008C) | SP: 64536 | DSP: 60536 | MicroPC: 0 | Zero: False
-  DEBUG    root:machine.py:291 TICK 16: Executing micro-op: LATCH_MAR_PC
-  INFO     root:machine.py:448 TICK:   16 | PC: 0x008C | IR: 0xC800008C (JMP   0x000008C) | SP: 64536 | DSP: 60536 | MicroPC: 1 | Zero: False
-  DEBUG    root:machine.py:291 TICK 17: Executing micro-op: CACHE_READ
-  WARNING  root:machine.py:61 CACHE: MISS on read at addr 0x008C. Accessing main memory.
-  INFO     root:machine.py:448 TICK:   17 | PC: 0x008C | IR: 0xC800008C (JMP   0x000008C) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 8 cycles remaining.
-  INFO     root:machine.py:448 TICK:   18 | PC: 0x008C | IR: 0xC800008C (JMP   0x00000
+  INFO     root:translator.py:678 Patched string 'Hello, World!': LUI@idx=140 imm=0x0000, ORI@idx=141 imm=0x0093 -> final_word_addr=0x00000093
+  INFO     root:machine.py:533 Starting simulation...
+  INFO     root:machine.py:483 TICK:    0 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 0 | Zero: False
+  DEBUG    root:machine.py:437 TICK 1: Executing micro-op: LATCH_MAR_PC
+  INFO     root:machine.py:483 TICK:    1 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 1 | Zero: False
+  DEBUG    root:machine.py:437 TICK 2: Executing micro-op: CACHE_READ
+  WARNING  root:machine.py:65 CACHE: MISS on read at addr 0x0000. Accessing main memory.
+  INFO     root:machine.py:483 TICK:    2 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 8 cycles remaining.
+  INFO     root:machine.py:483 TICK:    3 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 7 cycles remaining.
+  INFO     root:machine.py:483 TICK:    4 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 6 cycles remaining.
+  INFO     root:machine.py:483 TICK:    5 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 5 cycles remaining.
+  INFO     root:machine.py:483 TICK:    6 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 4 cycles remaining.
+  INFO     root:machine.py:483 TICK:    7 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 3 cycles remaining.
+  INFO     root:machine.py:483 TICK:    8 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 2 cycles remaining.
+  INFO     root:machine.py:483 TICK:    9 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 1 cycles remaining.
+  INFO     root:machine.py:483 TICK:   10 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 0 cycles remaining.
+  INFO     root:machine.py:483 TICK:   11 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  DEBUG    root:machine.py:437 TICK 12: Executing micro-op: LATCH_PC_INC
+  INFO     root:machine.py:483 TICK:   12 | PC: 0x0001 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 3 | Zero: False
+  DEBUG    root:machine.py:437 TICK 13: Executing micro-op: LATCH_IR
+  INFO     root:machine.py:483 TICK:   13 | PC: 0x0001 | IR: 0xC800008C (JMP   0x000008C) | SP: 64536 | DSP: 60536 | MicroPC: 4 | Zero: False
+  DEBUG    root:machine.py:437 TICK 14: Executing micro-op: LATCH_PC_ADDR
+  INFO     root:machine.py:315 JMP/CALL: Setting PC to 0x008C
+  INFO     root:machine.py:483 TICK:   14 | PC: 0x008C | IR: 0xC800008C (JMP   0x000008C) | SP: 64536 | DSP: 60536 | MicroPC: 5 | Zero: False
+  DEBUG    root:machine.py:437 TICK 15: Executing micro-op: FINISH_INSTRUCTION
+  INFO     root:machine.py:483 TICK:   15 | PC: 0x008C | IR: 0xC800008C (JMP   0x000008C) | SP: 64536 | DSP: 60536 | MicroPC: 0 | Zero: False
+  DEBUG    root:machine.py:437 TICK 16: Executing micro-op: LATCH_MAR_PC
+  INFO     root:machine.py:483 TICK:   16 | PC: 0x008C | IR: 0xC800008C (JMP   0x000008C) | SP: 64536 | DSP: 60536 | MicroPC: 1 | Zero: False
+  DEBUG    root:machine.py:437 TICK 17: Executing micro-op: CACHE_READ
+  WARNING  root:machine.py:65 CACHE: MISS on read at addr 0x008C. Accessing main memory.
+  INFO     root:machine.py:483 TICK:   17 | PC: 0x008C | IR: 0xC800008C (JMP   0x000008C) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 8 cycles remaining.
+  INFO     root:machine.py:483 TICK:   18 | PC: 0x008C | IR: 0xC800008C (JMP   0x00000
   ... (log truncated)

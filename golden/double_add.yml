@@ -462,33 +462,33 @@ out_stdout: |
   '
   Total ticks: 40580
 out_log: |-
-  INFO     root:translator.py:857 Patched variable 'VAL_B': LUI@idx=173 imm=0x0000, ORI@idx=174 imm=0x0170 -> final_word_addr=0x00000170
-  INFO     root:translator.py:857 Patched variable 'VAL_A': LUI@idx=177 imm=0x0000, ORI@idx=178 imm=0x016F -> final_word_addr=0x0000016F
-  INFO     root:translator.py:857 Patched variable 'VAL_A': LUI@idx=181 imm=0x0000, ORI@idx=182 imm=0x016F -> final_word_addr=0x0000016F
-  INFO     root:translator.py:857 Patched variable 'UNSIGNED_MASK': LUI@idx=185 imm=0x0000, ORI@idx=186 imm=0x016E -> final_word_addr=0x0000016E
-  INFO     root:translator.py:857 Patched variable 'VAL_B': LUI@idx=193 imm=0x0000, ORI@idx=194 imm=0x0170 -> final_word_addr=0x00000170
-  INFO     root:translator.py:857 Patched variable 'UNSIGNED_MASK': LUI@idx=197 imm=0x0000, ORI@idx=198 imm=0x016E -> final_word_addr=0x0000016E
-  INFO     root:translator.py:857 Patched variable 'CARRY_VAR': LUI@idx=222 imm=0x0000, ORI@idx=223 imm=0x016D -> final_word_addr=0x0000016D
-  INFO     root:translator.py:857 Patched variable 'A_LOW': LUI@idx=226 imm=0x0000, ORI@idx=227 imm=0x0169 -> final_word_addr=0x00000169
-  INFO     root:translator.py:857 Patched variable 'B_LOW': LUI@idx=230 imm=0x0000, ORI@idx=231 imm=0x016B -> final_word_addr=0x0000016B
-  INFO     root:translator.py:857 Patched variable 'A_LOW': LUI@idx=239 imm=0x0000, ORI@idx=240 imm=0x0169 -> final_word_addr=0x00000169
-  INFO     root:translator.py:857 Patched variable 'CARRY_VAR': LUI@idx=248 imm=0x0000, ORI@idx=249 imm=0x016D -> final_word_addr=0x0000016D
-  INFO     root:translator.py:857 Patched variable 'A_HIGH': LUI@idx=252 imm=0x0000, ORI@idx=253 imm=0x016A -> final_word_addr=0x0000016A
-  INFO     root:translator.py:857 Patched variable 'B_HIGH': LUI@idx=256 imm=0x0000, ORI@idx=257 imm=0x016C -> final_word_addr=0x0000016C
-  INFO     root:translator.py:857 Patched variable 'CARRY_VAR': LUI@idx=264 imm=0x0000, ORI@idx=265 imm=0x016D -> final_word_addr=0x0000016D
-  INFO     root:translator.py:857 Patched variable 'A_LOW': LUI@idx=272 imm=0x0000, ORI@idx=273 imm=0x0169 -> final_word_addr=0x00000169
-  INFO     root:translator.py:857 Patched variable 'B_LOW': LUI@idx=276 imm=0x0000, ORI@idx=277 imm=0x016B -> final_word_addr=0x0000016B
-  INFO     root:translator.py:857 Patched variable 'UNSIGNED_MASK': LUI@idx=288 imm=0x0000, ORI@idx=289 imm=0x016E -> final_word_addr=0x0000016E
-  INFO     root:translator.py:857 Patched variable 'A_HIGH': LUI@idx=299 imm=0x0000, ORI@idx=300 imm=0x016A -> final_word_addr=0x0000016A
-  INFO     root:translator.py:857 Patched variable 'A_LOW': LUI@idx=306 imm=0x0000, ORI@idx=307 imm=0x0169 -> final_word_addr=0x00000169
-  INFO     root:translator.py:857 Patched variable 'B_HIGH': LUI@idx=312 imm=0x0000, ORI@idx=313 imm=0x016C -> final_word_addr=0x0000016C
-  INFO     root:translator.py:857 Patched variable 'B_LOW': LUI@idx=318 imm=0x0000, ORI@idx=319 imm=0x016B -> final_word_addr=0x0000016B
-  INFO     root:translator.py:857 Patched variable 'A_HIGH': LUI@idx=333 imm=0x0000, ORI@idx=334 imm=0x016A -> final_word_addr=0x0000016A
-  INFO     root:translator.py:857 Patched variable 'A_LOW': LUI@idx=339 imm=0x0000, ORI@idx=340 imm=0x0169 -> final_word_addr=0x00000169
-  INFO     root:translator.py:857 Patched variable 'B_HIGH': LUI@idx=345 imm=0x0000, ORI@idx=346 imm=0x016C -> final_word_addr=0x0000016C
-  INFO     root:translator.py:857 Patched variable 'B_LOW': LUI@idx=351 imm=0x0000, ORI@idx=352 imm=0x016B -> final_word_addr=0x0000016B
-  INFO     root:translator.py:577 Patched string 'High:': LUI@idx=208 imm=0x0000, ORI@idx=209 imm=0x01B5 -> final_word_addr=0x000001B5
-  INFO     root:translator.py:577 Patched string 'Low:': LUI@idx=213 imm=0x0000, ORI@idx=214 imm=0x01BB -> final_word_addr=0x000001BB
-  INFO     root:translator.py:577 Patched string '--- Test 1: Addition with carry ---': LUI@idx=292 imm=0x0000, ORI@idx=293 imm=0x0171 -> final_word_addr=0x00000171
-  INFO     root:translator.py:577 Patched string '--- Test 2: Simple addition ---': LUI@idx=326 imm=0x0000, ORI@idx=327 imm=0x0195 -> final_word_addr=0x00000
+  INFO     root:translator.py:1002 Patched variable 'VAL_B': LUI@idx=173 imm=0x0000, ORI@idx=174 imm=0x0170 -> final_word_addr=0x00000170
+  INFO     root:translator.py:1002 Patched variable 'VAL_A': LUI@idx=177 imm=0x0000, ORI@idx=178 imm=0x016F -> final_word_addr=0x0000016F
+  INFO     root:translator.py:1002 Patched variable 'VAL_A': LUI@idx=181 imm=0x0000, ORI@idx=182 imm=0x016F -> final_word_addr=0x0000016F
+  INFO     root:translator.py:1002 Patched variable 'UNSIGNED_MASK': LUI@idx=185 imm=0x0000, ORI@idx=186 imm=0x016E -> final_word_addr=0x0000016E
+  INFO     root:translator.py:1002 Patched variable 'VAL_B': LUI@idx=193 imm=0x0000, ORI@idx=194 imm=0x0170 -> final_word_addr=0x00000170
+  INFO     root:translator.py:1002 Patched variable 'UNSIGNED_MASK': LUI@idx=197 imm=0x0000, ORI@idx=198 imm=0x016E -> final_word_addr=0x0000016E
+  INFO     root:translator.py:1002 Patched variable 'CARRY_VAR': LUI@idx=222 imm=0x0000, ORI@idx=223 imm=0x016D -> final_word_addr=0x0000016D
+  INFO     root:translator.py:1002 Patched variable 'A_LOW': LUI@idx=226 imm=0x0000, ORI@idx=227 imm=0x0169 -> final_word_addr=0x00000169
+  INFO     root:translator.py:1002 Patched variable 'B_LOW': LUI@idx=230 imm=0x0000, ORI@idx=231 imm=0x016B -> final_word_addr=0x0000016B
+  INFO     root:translator.py:1002 Patched variable 'A_LOW': LUI@idx=239 imm=0x0000, ORI@idx=240 imm=0x0169 -> final_word_addr=0x00000169
+  INFO     root:translator.py:1002 Patched variable 'CARRY_VAR': LUI@idx=248 imm=0x0000, ORI@idx=249 imm=0x016D -> final_word_addr=0x0000016D
+  INFO     root:translator.py:1002 Patched variable 'A_HIGH': LUI@idx=252 imm=0x0000, ORI@idx=253 imm=0x016A -> final_word_addr=0x0000016A
+  INFO     root:translator.py:1002 Patched variable 'B_HIGH': LUI@idx=256 imm=0x0000, ORI@idx=257 imm=0x016C -> final_word_addr=0x0000016C
+  INFO     root:translator.py:1002 Patched variable 'CARRY_VAR': LUI@idx=264 imm=0x0000, ORI@idx=265 imm=0x016D -> final_word_addr=0x0000016D
+  INFO     root:translator.py:1002 Patched variable 'A_LOW': LUI@idx=272 imm=0x0000, ORI@idx=273 imm=0x0169 -> final_word_addr=0x00000169
+  INFO     root:translator.py:1002 Patched variable 'B_LOW': LUI@idx=276 imm=0x0000, ORI@idx=277 imm=0x016B -> final_word_addr=0x0000016B
+  INFO     root:translator.py:1002 Patched variable 'UNSIGNED_MASK': LUI@idx=288 imm=0x0000, ORI@idx=289 imm=0x016E -> final_word_addr=0x0000016E
+  INFO     root:translator.py:1002 Patched variable 'A_HIGH': LUI@idx=299 imm=0x0000, ORI@idx=300 imm=0x016A -> final_word_addr=0x0000016A
+  INFO     root:translator.py:1002 Patched variable 'A_LOW': LUI@idx=306 imm=0x0000, ORI@idx=307 imm=0x0169 -> final_word_addr=0x00000169
+  INFO     root:translator.py:1002 Patched variable 'B_HIGH': LUI@idx=312 imm=0x0000, ORI@idx=313 imm=0x016C -> final_word_addr=0x0000016C
+  INFO     root:translator.py:1002 Patched variable 'B_LOW': LUI@idx=318 imm=0x0000, ORI@idx=319 imm=0x016B -> final_word_addr=0x0000016B
+  INFO     root:translator.py:1002 Patched variable 'A_HIGH': LUI@idx=333 imm=0x0000, ORI@idx=334 imm=0x016A -> final_word_addr=0x0000016A
+  INFO     root:translator.py:1002 Patched variable 'A_LOW': LUI@idx=339 imm=0x0000, ORI@idx=340 imm=0x0169 -> final_word_addr=0x00000169
+  INFO     root:translator.py:1002 Patched variable 'B_HIGH': LUI@idx=345 imm=0x0000, ORI@idx=346 imm=0x016C -> final_word_addr=0x0000016C
+  INFO     root:translator.py:1002 Patched variable 'B_LOW': LUI@idx=351 imm=0x0000, ORI@idx=352 imm=0x016B -> final_word_addr=0x0000016B
+  INFO     root:translator.py:678 Patched string 'High:': LUI@idx=208 imm=0x0000, ORI@idx=209 imm=0x01B5 -> final_word_addr=0x000001B5
+  INFO     root:translator.py:678 Patched string 'Low:': LUI@idx=213 imm=0x0000, ORI@idx=214 imm=0x01BB -> final_word_addr=0x000001BB
+  INFO     root:translator.py:678 Patched string '--- Test 1: Addition with carry ---': LUI@idx=292 imm=0x0000, ORI@idx=293 imm=0x0171 -> final_word_addr=0x00000171
+  INFO     root:translator.py:678 Patched string '--- Test 2: Simple addition ---': LUI@idx=326 imm=0x0000, ORI@idx=327 imm=0x0195 -
   ... (log truncated)

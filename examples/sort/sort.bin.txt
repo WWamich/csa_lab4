@@ -1,4 +1,4 @@
-; Source: sort.f
+; Source: examples/sort/sort.f
 ; Code section (size: 1916 bytes)
 0x0000: C80001DA  JMP   0x00001DA
 0x0001: C4030000  POP   R3

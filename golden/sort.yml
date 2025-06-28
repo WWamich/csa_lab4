@@ -590,34 +590,34 @@ out_stdout: |
   '
   Total ticks: 86814
 out_log: |-
-  INFO     root:translator.py:857 Patched variable 'PARSE_ACCUM': LUI@idx=175 imm=0x0000, ORI@idx=176 imm=0x0216 -> final_word_addr=0x00000216
-  INFO     root:translator.py:857 Patched variable 'PARSE_ACCUM': LUI@idx=213 imm=0x0000, ORI@idx=214 imm=0x0216 -> final_word_addr=0x00000216
-  INFO     root:translator.py:857 Patched variable 'PARSE_ACCUM': LUI@idx=227 imm=0x0000, ORI@idx=228 imm=0x0216 -> final_word_addr=0x00000216
-  INFO     root:translator.py:857 Patched variable 'PARSE_ACCUM': LUI@idx=234 imm=0x0000, ORI@idx=235 imm=0x0216 -> final_word_addr=0x00000216
-  INFO     root:translator.py:857 Patched variable 'NUMBERS': LUI@idx=240 imm=0x0000, ORI@idx=241 imm=0x01DF -> final_word_addr=0x000001DF
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=246 imm=0x0000, ORI@idx=247 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=250 imm=0x0000, ORI@idx=251 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'NUMBERS': LUI@idx=254 imm=0x0000, ORI@idx=255 imm=0x01DF -> final_word_addr=0x000001DF
-  INFO     root:translator.py:857 Patched variable 'NUMBERS': LUI@idx=261 imm=0x0000, ORI@idx=262 imm=0x01DF -> final_word_addr=0x000001DF
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=264 imm=0x0000, ORI@idx=265 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=276 imm=0x0000, ORI@idx=277 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=281 imm=0x0000, ORI@idx=282 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=289 imm=0x0000, ORI@idx=290 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=293 imm=0x0000, ORI@idx=294 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'NUMBERS': LUI@idx=297 imm=0x0000, ORI@idx=298 imm=0x01DF -> final_word_addr=0x000001DF
-  INFO     root:translator.py:857 Patched variable 'NUMBERS': LUI@idx=304 imm=0x0000, ORI@idx=305 imm=0x01DF -> final_word_addr=0x000001DF
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=307 imm=0x0000, ORI@idx=308 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=318 imm=0x0000, ORI@idx=319 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=323 imm=0x0000, ORI@idx=324 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=332 imm=0x0000, ORI@idx=333 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=336 imm=0x0000, ORI@idx=337 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'NUMBERS': LUI@idx=340 imm=0x0000, ORI@idx=341 imm=0x01DF -> final_word_addr=0x000001DF
-  INFO     root:translator.py:857 Patched variable 'J_VAR': LUI@idx=350 imm=0x0000, ORI@idx=351 imm=0x0213 -> final_word_addr=0x00000213
-  INFO     root:translator.py:857 Patched variable 'J_VAR': LUI@idx=354 imm=0x0000, ORI@idx=355 imm=0x0213 -> final_word_addr=0x00000213
-  INFO     root:translator.py:857 Patched variable 'NUMBERS': LUI@idx=358 imm=0x0000, ORI@idx=359 imm=0x01DF -> final_word_addr=0x000001DF
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=362 imm=0x0000, ORI@idx=363 imm=0x0212 -> final_word_addr=0x00000212
-  INFO     root:translator.py:857 Patched variable 'NUMBERS': LUI@idx=374 imm=0x0000, ORI@idx=375 imm=0x01DF -> final_word_addr=0x000001DF
-  INFO     root:translator.py:857 Patched variable 'J_VAR': LUI@idx=377 imm=0x0000, ORI@idx=378 imm=0x0213 -> final_word_addr=0x00000213
-  INFO     root:translator.py:857 Patched variable 'V_J': LUI@idx=387 imm=0x0000, ORI@idx=388 imm=0x0214 -> final_word_addr=0x00000214
-  INFO     root:translator.py:857 Patched variabl
+  INFO     root:translator.py:1002 Patched variable 'PARSE_ACCUM': LUI@idx=175 imm=0x0000, ORI@idx=176 imm=0x0216 -> final_word_addr=0x00000216
+  INFO     root:translator.py:1002 Patched variable 'PARSE_ACCUM': LUI@idx=213 imm=0x0000, ORI@idx=214 imm=0x0216 -> final_word_addr=0x00000216
+  INFO     root:translator.py:1002 Patched variable 'PARSE_ACCUM': LUI@idx=227 imm=0x0000, ORI@idx=228 imm=0x0216 -> final_word_addr=0x00000216
+  INFO     root:translator.py:1002 Patched variable 'PARSE_ACCUM': LUI@idx=234 imm=0x0000, ORI@idx=235 imm=0x0216 -> final_word_addr=0x00000216
+  INFO     root:translator.py:1002 Patched variable 'NUMBERS': LUI@idx=240 imm=0x0000, ORI@idx=241 imm=0x01DF -> final_word_addr=0x000001DF
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=246 imm=0x0000, ORI@idx=247 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=250 imm=0x0000, ORI@idx=251 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'NUMBERS': LUI@idx=254 imm=0x0000, ORI@idx=255 imm=0x01DF -> final_word_addr=0x000001DF
+  INFO     root:translator.py:1002 Patched variable 'NUMBERS': LUI@idx=261 imm=0x0000, ORI@idx=262 imm=0x01DF -> final_word_addr=0x000001DF
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=264 imm=0x0000, ORI@idx=265 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=276 imm=0x0000, ORI@idx=277 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=281 imm=0x0000, ORI@idx=282 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=289 imm=0x0000, ORI@idx=290 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=293 imm=0x0000, ORI@idx=294 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'NUMBERS': LUI@idx=297 imm=0x0000, ORI@idx=298 imm=0x01DF -> final_word_addr=0x000001DF
+  INFO     root:translator.py:1002 Patched variable 'NUMBERS': LUI@idx=304 imm=0x0000, ORI@idx=305 imm=0x01DF -> final_word_addr=0x000001DF
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=307 imm=0x0000, ORI@idx=308 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=318 imm=0x0000, ORI@idx=319 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=323 imm=0x0000, ORI@idx=324 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=332 imm=0x0000, ORI@idx=333 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=336 imm=0x0000, ORI@idx=337 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'NUMBERS': LUI@idx=340 imm=0x0000, ORI@idx=341 imm=0x01DF -> final_word_addr=0x000001DF
+  INFO     root:translator.py:1002 Patched variable 'J_VAR': LUI@idx=350 imm=0x0000, ORI@idx=351 imm=0x0213 -> final_word_addr=0x00000213
+  INFO     root:translator.py:1002 Patched variable 'J_VAR': LUI@idx=354 imm=0x0000, ORI@idx=355 imm=0x0213 -> final_word_addr=0x00000213
+  INFO     root:translator.py:1002 Patched variable 'NUMBERS': LUI@idx=358 imm=0x0000, ORI@idx=359 imm=0x01DF -> final_word_addr=0x000001DF
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=362 imm=0x0000, ORI@idx=363 imm=0x0212 -> final_word_addr=0x00000212
+  INFO     root:translator.py:1002 Patched variable 'NUMBERS': LUI@idx=374 imm=0x0000, ORI@idx=375 imm=0x01DF -> final_word_addr=0x000001DF
+  INFO     root:translator.py:1002 Patched variable 'J_VAR': LUI@idx=377 imm=0x0000, ORI@idx=378 imm=0x0213 -> final_word_addr=0x00000213
+  INFO     root:translator.py:1002 Patched variable 'V_J': LUI@idx=387 imm=0x0000, ORI@idx=388 imm=0x0214 -> final_word_addr=0x00000214
+  INFO     root:tran
   ... (log truncated)

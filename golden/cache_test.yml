@@ -388,36 +388,36 @@ out_stdout: |
   '
   Total ticks: 417686
 out_log: |-
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=170 imm=0x0000, ORI@idx=171 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=174 imm=0x0000, ORI@idx=175 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'ARRAY-SIZE-VAR': LUI@idx=178 imm=0x0000, ORI@idx=179 imm=0x0130 -> final_word_addr=0x00000130
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=185 imm=0x0000, ORI@idx=186 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'BIG-ARRAY': LUI@idx=190 imm=0x0000, ORI@idx=191 imm=0x0131 -> final_word_addr=0x00000131
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=193 imm=0x0000, ORI@idx=194 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=202 imm=0x0000, ORI@idx=203 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=207 imm=0x0000, ORI@idx=208 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'SUM_VAR': LUI@idx=215 imm=0x0000, ORI@idx=216 imm=0x012F -> final_word_addr=0x0000012F
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=221 imm=0x0000, ORI@idx=222 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=225 imm=0x0000, ORI@idx=226 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'ARRAY-SIZE-VAR': LUI@idx=229 imm=0x0000, ORI@idx=230 imm=0x0130 -> final_word_addr=0x00000130
-  INFO     root:translator.py:857 Patched variable 'SUM_VAR': LUI@idx=236 imm=0x0000, ORI@idx=237 imm=0x012F -> final_word_addr=0x0000012F
-  INFO     root:translator.py:857 Patched variable 'BIG-ARRAY': LUI@idx=240 imm=0x0000, ORI@idx=241 imm=0x0131 -> final_word_addr=0x00000131
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=243 imm=0x0000, ORI@idx=244 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'SUM_VAR': LUI@idx=256 imm=0x0000, ORI@idx=257 imm=0x012F -> final_word_addr=0x0000012F
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=260 imm=0x0000, ORI@idx=261 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=265 imm=0x0000, ORI@idx=266 imm=0x012E -> final_word_addr=0x0000012E
-  INFO     root:translator.py:857 Patched variable 'ARRAY-SIZE-VAR': LUI@idx=273 imm=0x0000, ORI@idx=274 imm=0x0130 -> final_word_addr=0x00000130
-  INFO     root:translator.py:857 Patched variable 'SUM_VAR': LUI@idx=283 imm=0x0000, ORI@idx=284 imm=0x012F -> final_word_addr=0x0000012F
-  INFO     root:translator.py:857 Patched variable 'SUM_VAR': LUI@idx=294 imm=0x0000, ORI@idx=295 imm=0x012F -> final_word_addr=0x0000012F
-  INFO     root:translator.py:577 Patched string 'Sum (Cold Cache):': LUI@idx=279 imm=0x0000, ORI@idx=280 imm=0x0171 -> final_word_addr=0x00000171
-  INFO     root:translator.py:577 Patched string 'Sum (Warm Cache):': LUI@idx=290 imm=0x0000, ORI@idx=291 imm=0x0183 -> final_word_addr=0x00000183
-  INFO     root:machine.py:431 Starting simulation...
-  INFO     root:machine.py:448 TICK:    0 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 0 | Zero: False
-  DEBUG    root:machine.py:291 TICK 1: Executing micro-op: LATCH_MAR_PC
-  INFO     root:machine.py:448 TICK:    1 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 1 | Zero: False
-  DEBUG    root:machine.py:291 TICK 2: Executing micro-op: CACHE_READ
-  WARNING  root:machine.py:61 CACHE: MISS on read at addr 0x0000. Accessing main memory.
-  INFO     root:machine.py:448 TICK:    2 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 8 cycles remaining.
-  INFO     root:machine.py:448 TICK:    3 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=170 imm=0x0000, ORI@idx=171 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=174 imm=0x0000, ORI@idx=175 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'ARRAY-SIZE-VAR': LUI@idx=178 imm=0x0000, ORI@idx=179 imm=0x0130 -> final_word_addr=0x00000130
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=185 imm=0x0000, ORI@idx=186 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'BIG-ARRAY': LUI@idx=190 imm=0x0000, ORI@idx=191 imm=0x0131 -> final_word_addr=0x00000131
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=193 imm=0x0000, ORI@idx=194 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=202 imm=0x0000, ORI@idx=203 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=207 imm=0x0000, ORI@idx=208 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'SUM_VAR': LUI@idx=215 imm=0x0000, ORI@idx=216 imm=0x012F -> final_word_addr=0x0000012F
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=221 imm=0x0000, ORI@idx=222 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=225 imm=0x0000, ORI@idx=226 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'ARRAY-SIZE-VAR': LUI@idx=229 imm=0x0000, ORI@idx=230 imm=0x0130 -> final_word_addr=0x00000130
+  INFO     root:translator.py:1002 Patched variable 'SUM_VAR': LUI@idx=236 imm=0x0000, ORI@idx=237 imm=0x012F -> final_word_addr=0x0000012F
+  INFO     root:translator.py:1002 Patched variable 'BIG-ARRAY': LUI@idx=240 imm=0x0000, ORI@idx=241 imm=0x0131 -> final_word_addr=0x00000131
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=243 imm=0x0000, ORI@idx=244 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'SUM_VAR': LUI@idx=256 imm=0x0000, ORI@idx=257 imm=0x012F -> final_word_addr=0x0000012F
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=260 imm=0x0000, ORI@idx=261 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=265 imm=0x0000, ORI@idx=266 imm=0x012E -> final_word_addr=0x0000012E
+  INFO     root:translator.py:1002 Patched variable 'ARRAY-SIZE-VAR': LUI@idx=273 imm=0x0000, ORI@idx=274 imm=0x0130 -> final_word_addr=0x00000130
+  INFO     root:translator.py:1002 Patched variable 'SUM_VAR': LUI@idx=283 imm=0x0000, ORI@idx=284 imm=0x012F -> final_word_addr=0x0000012F
+  INFO     root:translator.py:1002 Patched variable 'SUM_VAR': LUI@idx=294 imm=0x0000, ORI@idx=295 imm=0x012F -> final_word_addr=0x0000012F
+  INFO     root:translator.py:678 Patched string 'Sum (Cold Cache):': LUI@idx=279 imm=0x0000, ORI@idx=280 imm=0x0171 -> final_word_addr=0x00000171
+  INFO     root:translator.py:678 Patched string 'Sum (Warm Cache):': LUI@idx=290 imm=0x0000, ORI@idx=291 imm=0x0183 -> final_word_addr=0x00000183
+  INFO     root:machine.py:533 Starting simulation...
+  INFO     root:machine.py:483 TICK:    0 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 0 | Zero: False
+  DEBUG    root:machine.py:437 TICK 1: Executing micro-op: LATCH_MAR_PC
+  INFO     root:machine.py:483 TICK:    1 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 1 | Zero: False
+  DEBUG    root:machine.py:437 TICK 2: Executing micro-op: CACHE_READ
+  WARNING  root:machine.py:65 CACHE: MISS on read at addr 0x0000. Accessing main memory.
+  INFO     root:machine.py:483 TICK:    2 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 8 cycles remaining.
+  INFO     root:machine.py:483 TICK:    3 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DS
   ... (log truncated)

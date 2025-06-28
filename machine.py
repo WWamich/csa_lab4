@@ -1,10 +1,12 @@
 from __future__ import annotations
+
 import logging
 import struct
 import sys
 from collections import deque
-from isa import (IO_INPUT_PORT, IO_OUTPUT_PORT, MEMORY_SIZE, Instruction,
-                 Opcode, Reg)
+from typing import Tuple
+
+from isa import IO_INPUT_PORT, IO_OUTPUT_PORT, MEMORY_SIZE, Instruction, Opcode, Reg
 from microcode import MicroOp, get_microcode_rom
 
 CACHE_HIT_LATENCY = 1
@@ -19,12 +21,12 @@ def is_io_address(addr: int) -> bool:
 class CacheLine:
     """Моделирует одну строку кеша."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.valid = False
         self.tag = -1
         self.data = 0
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"CacheLine(valid={self.valid}, tag={self.tag}, data={hex(self.data)})"
 
 
@@ -34,20 +36,22 @@ class Cache:
     Взаимодействует с основной памятью.
     """
 
-    def __init__(self, size_in_lines, main_memory):
-        assert size_in_lines > 0 and (size_in_lines & (size_in_lines - 1) == 0), "Cache size must be a power of 2"
+    def __init__(self, size_in_lines, main_memory) -> None:
+        assert size_in_lines > 0 and (
+            size_in_lines & (size_in_lines - 1) == 0
+        ), "Cache size must be a power of 2"
         self.size = size_in_lines
         self.lines = [CacheLine() for _ in range(size_in_lines)]
         self.main_memory = main_memory
 
-    def _get_line_and_tag(self, addr):
+    def _get_line_and_tag(self, addr) -> Tuple[int, int]:
         # Используем log2(size) младших бит для индекса
         index_bits = (self.size - 1).bit_length() - 1
         line_index = addr & ((1 << index_bits) - 1)
         tag = addr >> index_bits
         return line_index, tag
 
-    def read(self, addr):
+    def read(self, addr) -> Tuple[int, int]:
         """Чтение данных из кеша. Возвращает (данные, задержка)."""
         if is_io_address(addr):
             logging.info(f"CACHE: Bypassing for I/O read at 0x{addr:04X}")
@@ -58,14 +62,16 @@ class Cache:
             logging.info(f"CACHE: HIT on read at addr 0x{addr:04X}")
             return line.data, CACHE_HIT_LATENCY
         else:
-            logging.warning(f"CACHE: MISS on read at addr 0x{addr:04X}. Accessing main memory.")
+            logging.warning(
+                f"CACHE: MISS on read at addr 0x{addr:04X}. Accessing main memory."
+            )
             data = self.main_memory.read(addr)
             line.valid = True
             line.tag = tag
             line.data = data
             return data, CACHE_MISS_LATENCY
 
-    def write(self, addr, data):
+    def write(self, addr, data) -> int:
         """
         Запись данных в кеш (write-through, no-write-allocate).
         Возвращает задержку.
@@ -79,10 +85,14 @@ class Cache:
         line = self.lines[line_index]
         is_hit = line.valid and line.tag == tag
         if is_hit:
-            logging.info(f"CACHE: HIT on write at addr 0x{addr:04X}. Updating cache and memory.")
+            logging.info(
+                f"CACHE: HIT on write at addr 0x{addr:04X}. Updating cache and memory."
+            )
             latency = CACHE_HIT_LATENCY
         else:
-            logging.warning(f"CACHE: MISS on write at addr 0x{addr:04X}. Writing to main memory.")
+            logging.warning(
+                f"CACHE: MISS on write at addr 0x{addr:04X}. Writing to main memory."
+            )
             latency = CACHE_MISS_LATENCY
 
         self.main_memory.write(addr, data)
@@ -96,7 +106,7 @@ class Cache:
 class MainMemory:
     """Модель основной памяти с memory-mapped I/O."""
 
-    def __init__(self, size, input_buffer):
+    def __init__(self, size, input_buffer) -> None:
         self.size = size
         self.memory = [0] * size
         self.input_buffer = deque(input_buffer)
@@ -126,7 +136,7 @@ class MainMemory:
     def load_program(self, code: list[Instruction], data: bytes):
         for i, instr in enumerate(code):
             instr_bytes = instr.to_binary()
-            word = struct.unpack('>I', instr_bytes)[0]
+            word = struct.unpack(">I", instr_bytes)[0]
             self.memory[i] = word
 
         code_size_bytes = len(code) * 4
@@ -188,42 +198,46 @@ class DataPath:
             logging.error(f"Unknown opcode value: {hex(opcode_val)}. Treating as NOP.")
             opcode = Opcode.NOP
 
-        sign_extended_opcodes = {Opcode.ADDI, Opcode.LOAD, Opcode.STORE, Opcode.JZ, Opcode.JNZ}
+        sign_extended_opcodes = {
+            Opcode.ADDI,
+            Opcode.LOAD,
+            Opcode.STORE,
+            Opcode.JZ,
+            Opcode.JNZ,
+        }
         if opcode in sign_extended_opcodes:
             if (imm & 0x8000) == 0x8000:
-                imm -= (1 << 16)
-        return {'opcode': opcode, 'rs': rs, 'rt': rt, 'rd': rd, 'imm': imm, 'addr': addr}
+                imm -= 1 << 16
+        return {
+            "opcode": opcode,
+            "rs": rs,
+            "rt": rt,
+            "rd": rd,
+            "imm": imm,
+            "addr": addr,
+        }
 
     def alu_op(self, op: MicroOp):
         """Выполняет операцию в АЛУ."""
-        if op == MicroOp.ALU_ADD:
-            self.alu_out = self.alu_a + self.alu_b
-        elif op == MicroOp.ALU_SUB:
-            self.alu_out = self.alu_a - self.alu_b
-        elif op == MicroOp.ALU_MUL:
-            self.alu_out = self.alu_a * self.alu_b
-        elif op == MicroOp.ALU_DIV:
-            self.alu_out = self.alu_a // self.alu_b if self.alu_b != 0 else 0
-        elif op == MicroOp.ALU_MOD:
-            self.alu_out = self.alu_a % self.alu_b if self.alu_b != 0 else 0
-        elif op == MicroOp.ALU_OR:
-            self.alu_out = self.alu_a | self.alu_b
-        elif op == MicroOp.ALU_AND:
-            self.alu_out = self.alu_a & self.alu_b
-        elif op == MicroOp.ALU_XOR:
-            self.alu_out = self.alu_a ^ self.alu_b
-        elif op == MicroOp.ALU_CMP:
-            self.alu_out = 1 if self.alu_a == self.alu_b else 0
-        elif op == MicroOp.ALU_SHL:
-            self.alu_out = self.alu_a << self.alu_b
-        elif op == MicroOp.ALU_SHR:
-            self.alu_out = self.alu_a >> self.alu_b
-        elif op == MicroOp.ALU_LUI:
-            self.alu_out = self.alu_b << 16
+        operations = {
+            MicroOp.ALU_ADD: lambda a, b: a + b,
+            MicroOp.ALU_SUB: lambda a, b: a - b,
+            MicroOp.ALU_MUL: lambda a, b: a * b,
+            MicroOp.ALU_DIV: lambda a, b: a // b if b != 0 else 0,
+            MicroOp.ALU_MOD: lambda a, b: a % b if b != 0 else 0,
+            MicroOp.ALU_OR: lambda a, b: a | b,
+            MicroOp.ALU_AND: lambda a, b: a & b,
+            MicroOp.ALU_XOR: lambda a, b: a ^ b,
+            MicroOp.ALU_CMP: lambda a, b: 1 if a == b else 0,
+            MicroOp.ALU_SHL: lambda a, b: a << b,
+            MicroOp.ALU_SHR: lambda a, b: a >> b,
+            MicroOp.ALU_LUI: lambda a, b: b << 16,
+        }
 
+        if op in operations:
+            self.alu_out = operations[op](self.alu_a, self.alu_b)
         else:
             raise ValueError(f"Unknown ALU micro-op: {op}")
-
         self.zero_flag = self.alu_out == 0
         self.gpr[0] = 0
 
@@ -240,7 +254,14 @@ class ControlUnit:
         self.tick_counter = 0
         self.stall_cycles = 0
         self.halted = False
-        self.current_decoded_ir = {'opcode': Opcode.NOP, 'rs': 0, 'rt': 0, 'rd': 0, 'imm': 0, 'addr': 0}
+        self.current_decoded_ir = {
+            "opcode": Opcode.NOP,
+            "rs": 0,
+            "rt": 0,
+            "rd": 0,
+            "imm": 0,
+            "addr": 0,
+        }
 
     def tick(self):
         """Выполняет один такт симуляции."""
@@ -255,7 +276,7 @@ class ControlUnit:
             return
 
         decoded_ir = self.current_decoded_ir
-        opcode = decoded_ir['opcode']
+        opcode = decoded_ir["opcode"]
         micro_program = self.microcode_rom.get(opcode)
 
         if not micro_program:
@@ -274,38 +295,36 @@ class ControlUnit:
         micro_op = micro_program[self.micro_pc]
         self.execute_micro_op(micro_op, decoded_ir)
         if self.halted:
-            return  # Не вычисляем следующий MicroPC если процессор остановлен
+            return
         next_micro_pc = self.micro_pc + 1
 
         if micro_op == MicroOp.FINISH_INSTRUCTION:
             next_micro_pc = 0
         if next_micro_pc >= len(micro_program) and next_micro_pc != 0:
-            logging.error(f"MicroPC for {opcode} will be out of bounds ({next_micro_pc}). Resetting.")
+            logging.error(
+                f"MicroPC for {opcode} will be out of bounds ({next_micro_pc}). Resetting."
+            )
             self.micro_pc = 0
         else:
             self.micro_pc = next_micro_pc
 
-    def execute_micro_op(self, op: MicroOp, ir: dict):
-        """Исполнение одной микро-операции."""
-        dp = self.datapath
-        logging.debug(f"TICK {self.tick_counter}: Executing micro-op: {op.name}")
-        if op == MicroOp.HALT_PROCESSOR:
-            self.halted = True
-            logging.info("HALT instruction executed. Stopping simulation.")
-        elif op == MicroOp.LATCH_PC_INC:
+    def _handle_pc_operations(self, op: MicroOp, ir: dict, dp: "DataPath"):
+        if op == MicroOp.LATCH_PC_INC:
             dp.pc += 1
         elif op == MicroOp.LATCH_PC_ADDR:
             logging.info(f"JMP/CALL: Setting PC to 0x{ir['addr']:04X}")
-            dp.pc = ir['addr']
+            dp.pc = ir["addr"]
         elif op == MicroOp.LATCH_PC_ALU:
             dp.pc = dp.alu_out
-        elif op == MicroOp.LATCH_MAR_PC:
+
+    def _handle_mar_mdr_ir_operations(self, op: MicroOp, ir: dict, dp: "DataPath"):
+        if op == MicroOp.LATCH_MAR_PC:
             dp.mar = dp.pc
         elif op == MicroOp.LATCH_MAR_ALU:
-            if ir['opcode'] == Opcode.RET:
+            if ir["opcode"] == Opcode.RET:
                 dp.mar = dp.sp
                 logging.debug(f"RET: Reading from call_sp=0x{dp.sp:04X}")
-            elif ir['opcode'] == Opcode.POP:
+            elif ir["opcode"] == Opcode.POP:
                 dp.mar = dp.alu_a
                 logging.debug(f"POP: Reading from data_sp=0x{dp.alu_a:04X}")
             else:
@@ -314,127 +333,143 @@ class ControlUnit:
             dp.ir_reg = dp.mdr
             self.current_decoded_ir = dp.decode_ir()
         elif op == MicroOp.LATCH_MDR_RT:
-            dp.mdr = dp.gpr[ir['rt']]
-            if ir['opcode'] == Opcode.STORE and dp.mar == 0xFF01:
+            dp.mdr = dp.gpr[ir["rt"]]
+            if ir["opcode"] == Opcode.STORE and dp.mar == 0xFF01:
                 logging.warning(
-                    f"EMIT: R{ir['rt']} contains value {dp.gpr[ir['rt']]} ('{chr(dp.gpr[ir['rt']] & 0xFF)}')")
+                    f"EMIT: R{ir['rt']} contains value {dp.gpr[ir['rt']]} ('{chr(dp.gpr[ir['rt']] & 0xFF)}')"
+                )
         elif op == MicroOp.LATCH_MDR_A:
             dp.mdr = dp.alu_a
-        elif op == MicroOp.LATCH_A_RS:
-            dp.alu_a = dp.gpr[ir['rs']]
+
+    def _get_alu_a_value(self, op: MicroOp, ir: dict, dp: "DataPath") -> int:
+        if op == MicroOp.LATCH_A_RS:
+            return dp.gpr[ir["rs"]]
         elif op == MicroOp.LATCH_A_RT:
-            dp.alu_a = dp.gpr[ir['rt']]
-            dp.zero_flag = (dp.alu_a == 0)
+            dp.zero_flag = dp.gpr[ir["rt"]] == 0  # side-effect for zero_flag
+            return dp.gpr[ir["rt"]]
         elif op == MicroOp.LATCH_A_SP:
-            if ir['opcode'] in [Opcode.PUSH, Opcode.POP]:
-                dp.alu_a = dp.data_sp
-            else:
-                dp.alu_a = dp.sp
+            if ir["opcode"] in [Opcode.PUSH, Opcode.POP]:
+                return dp.data_sp
+            return dp.sp
         elif op == MicroOp.LATCH_A_MDR:
-            dp.alu_a = dp.mdr
-            if ir['opcode'] == Opcode.RET:
+            if ir["opcode"] == Opcode.RET:
                 logging.error(f"RET: Read return address 0x{dp.mdr:04X} from stack")
+            return dp.mdr
         elif op == MicroOp.LATCH_A_PC:
-            if ir['opcode'] == Opcode.CALL:
-                dp.alu_a = dp.pc
+            if ir["opcode"] == Opcode.CALL:
                 logging.info(f"CALL: Saving return address 0x{dp.pc:04X}")
+            return dp.pc
+        raise ValueError(f"Unknown LATCH_A operation: {op}")
+
+    def _get_alu_b_value(self, op: MicroOp, ir: dict) -> int:
+        if op == MicroOp.LATCH_B_RT:
+            return self.datapath.gpr[ir["rt"]]
+        elif op == MicroOp.LATCH_B_IMM:
+            return ir["imm"]
+        elif op == MicroOp.LATCH_B_CONST_1:
+            return 1
+        raise ValueError(f"Unknown LATCH_B operation: {op}")
+
+    def _handle_alu_input_latching(self, op: MicroOp, ir: dict, dp: "DataPath"):
+        if op.name.startswith("LATCH_A_"):
+            dp.alu_a = self._get_alu_a_value(op, ir, dp)
+        elif op.name.startswith("LATCH_B_"):
+            dp.alu_b = self._get_alu_b_value(op, ir)
+        else:
+            raise ValueError(f"Unhandled ALU input latching op: {op}")
+
+    def _handle_alu_output_latching(self, op: MicroOp, ir: dict, dp: "DataPath"):
+        if op == MicroOp.LATCH_RD_ALU:
+            dp.gpr[ir["rd"]] = dp.alu_out
+        elif op == MicroOp.LATCH_RT_ALU:
+            dp.gpr[ir["rt"]] = dp.alu_out
+        elif op == MicroOp.LATCH_RT_MDR:
+            dp.gpr[ir["rt"]] = dp.mdr
+        elif op == MicroOp.LATCH_SP_ALU:
+            if not (0 <= dp.alu_out < dp.cache.main_memory.size):
+                if ir["opcode"] in [Opcode.PUSH, Opcode.POP]:
+                    logging.error(f"Data stack overflow: {dp.alu_out}")
+                    raise RuntimeError("Data stack overflow")
+                else:
+                    logging.error(f"Call stack overflow: {dp.alu_out}")
+                    raise RuntimeError("Call stack overflow")
+
+            if ir["opcode"] in [Opcode.PUSH, Opcode.POP]:
+                dp.data_sp = dp.alu_out
             else:
-                dp.alu_a = dp.pc
-        elif op == MicroOp.BRANCH_IF_ZERO:
+                dp.sp = dp.alu_out
+
+    def _handle_branch_operations(self, op: MicroOp, ir: dict, dp: "DataPath"):
+        if op == MicroOp.BRANCH_IF_ZERO:
             if dp.zero_flag:
                 dp.alu_a = dp.pc
-                dp.alu_b = ir['imm']
+                dp.alu_b = ir["imm"]
                 dp.alu_op(MicroOp.ALU_ADD)
                 dp.pc = dp.alu_out
         elif op == MicroOp.BRANCH_IF_NOT_ZERO:
             if not dp.zero_flag:
                 dp.alu_a = dp.pc
-                dp.alu_b = ir['imm']
+                dp.alu_b = ir["imm"]
                 dp.alu_op(MicroOp.ALU_ADD)
                 dp.pc = dp.alu_out
-        elif op == MicroOp.LATCH_B_RT:
-            dp.alu_b = dp.gpr[ir['rt']]
-        elif op == MicroOp.LATCH_B_IMM:
-            dp.alu_b = ir['imm']
-        elif op == MicroOp.LATCH_B_CONST_1:
-            dp.alu_b = 1
-        elif op == MicroOp.LATCH_RD_ALU:
-            dp.gpr[ir['rd']] = dp.alu_out
-        elif op == MicroOp.LATCH_RT_ALU:
-            dp.gpr[ir['rt']] = dp.alu_out
-        elif op == MicroOp.LATCH_RT_MDR:
-            dp.gpr[ir['rt']] = dp.mdr
-        elif op == MicroOp.LATCH_SP_ALU:
-            if ir['opcode'] in [Opcode.PUSH, Opcode.POP]:
-                if not (0 <= dp.alu_out < dp.cache.main_memory.size):
-                    logging.error(f"Data stack overflow: {dp.alu_out}")
-                    raise RuntimeError("Data stack overflow")
-                dp.data_sp = dp.alu_out
-            else:
-                if not (0 <= dp.alu_out < dp.cache.main_memory.size):
-                    logging.error(f"Call stack overflow: {dp.alu_out}")
-                    raise RuntimeError("Call stack overflow")
-                dp.sp = dp.alu_out
-        elif op.name.startswith("ALU_"):
-            dp.alu_op(op)
-        elif op == MicroOp.CACHE_READ:
+
+    def _handle_cache_operations(self, op: MicroOp, ir: dict, dp: "DataPath"):
+        if op == MicroOp.CACHE_READ:
             data, latency = dp.cache.read(dp.mar)
             dp.mdr = data
             if latency > 1:
                 self.stall_cycles = latency - 1
         elif op == MicroOp.CACHE_WRITE:
             if dp.mar == IO_OUTPUT_PORT:
-                logging.warning(f"EMIT: Writing value {dp.mdr} ('{chr(dp.mdr & 0xFF)}') to output")
+                logging.warning(
+                    f"EMIT: Writing value {dp.mdr} ('{chr(dp.mdr & 0xFF)}') to output"
+                )
             latency = dp.cache.write(dp.mar, dp.mdr)
             if latency > 1:
                 self.stall_cycles = latency - 1
+        elif op == MicroOp.HALT_PROCESSOR:
+            self.halted = True
+            logging.info("HALT instruction executed. Stopping simulation.")
+
+    def execute_micro_op(self, op: MicroOp, ir: dict):
+        """Исполнение одной микро-операции."""
+        dp = self.datapath
+        logging.debug(f"TICK {self.tick_counter}: Executing micro-op: {op.name}")
+
+        if op.name.startswith("LATCH_PC_"):
+            self._handle_pc_operations(op, ir, dp)
+        elif op.name.startswith(("LATCH_MAR_", "LATCH_MDR_", "LATCH_IR")):
+            self._handle_mar_mdr_ir_operations(op, ir, dp)
+        elif op.name.startswith(("LATCH_A_", "LATCH_B_")):
+            self._handle_alu_input_latching(op, ir, dp)
+        elif op.name.startswith(("LATCH_RD_", "LATCH_RT_", "LATCH_SP_")):
+            self._handle_alu_output_latching(op, ir, dp)
+        elif op.name.startswith("ALU_"):
+            dp.alu_op(op)
+        elif op.name.startswith("BRANCH_IF_") or op.name.startswith("JUMP_IF_"):
+            self._handle_branch_operations(op, ir, dp)
+        elif op.name.startswith("CACHE_") or op == MicroOp.HALT_PROCESSOR:
+            self._handle_cache_operations(op, ir, dp)
         elif op == MicroOp.FINISH_INSTRUCTION:
-            pass
+            pass  # Это просто маркер
         else:
             raise ValueError(f"Unknown micro-op during execution: {op}")
+
         dp.gpr[0] = 0
 
 
-def simulation(binary_code: bytes, input_str: str, limit: int, cache_size: int):
-    """Основной цикл симуляции."""
-
-    words = []
-    for i in range(0, len(binary_code), 4):
-        words.append(struct.unpack('>I', binary_code[i:i + 4])[0])
-
-    last_halt_idx = -1
-    for i, word in enumerate(words):
-        opcode_val = (word >> 26) & 0x3F
-        if opcode_val == Opcode.HALT.value:
-            last_halt_idx = i
-
-    if last_halt_idx == -1:
-        raise ValueError("HALT instruction not found in the binary file.")
-
-    code_words = words[:last_halt_idx + 1]
-    data_words = words[last_halt_idx + 1:]
-    datapath = DataPath(MEMORY_SIZE, cache_size, list(input_str))
-    for i, word in enumerate(code_words):
-        datapath.main_memory.memory[i] = word
-    code_size_words = len(code_words)
-    for i, word in enumerate(data_words):
-        if code_size_words + i < datapath.main_memory.size:
-            datapath.main_memory.memory[code_size_words + i] = word
-        else:
-            logging.warning("Data section overflows memory. Truncating.")
-            break
-
-    print(f"Code size: {len(code_words)} words. Data size: {len(data_words)} words.")
-
-    control_unit = ControlUnit(datapath)
-
-    logging.info("Starting simulation...")
+def _run_simulation_loop(control_unit: "ControlUnit", datapath: "DataPath", limit: int):
+    """Внутренний цикл симуляции."""
     while not control_unit.halted and control_unit.tick_counter < limit:
         try:
             decoded = control_unit.current_decoded_ir
             mnemonic = Instruction(
-                decoded['opcode'], decoded['rs'], decoded['rt'],
-                decoded['rd'], decoded['imm'], decoded['addr']
+                decoded["opcode"],
+                decoded["rs"],
+                decoded["rt"],
+                decoded["rd"],
+                decoded["imm"],
+                decoded["addr"],
             ).get_mnemonic()
 
             log_msg = (
@@ -461,34 +496,70 @@ def simulation(binary_code: bytes, input_str: str, limit: int, cache_size: int):
     elif control_unit.tick_counter >= limit:
         logging.warning("Simulation limit reached.")
 
+
+def simulation(binary_code: bytes, input_str: str, limit: int, cache_size: int):
+    """Основной цикл симуляции."""
+    words = []
+    for i in range(0, len(binary_code), 4):
+        words.append(struct.unpack(">I", binary_code[i : i + 4])[0])
+
+    last_halt_idx = -1
+    for i, word in enumerate(words):
+        opcode_val = (word >> 26) & 0x3F
+        if opcode_val == Opcode.HALT.value:
+            last_halt_idx = i
+
+    if last_halt_idx == -1:
+        raise ValueError("HALT instruction not found in the binary file.")
+
+    code_words = words[: last_halt_idx + 1]
+    data_words = words[last_halt_idx + 1 :]
+    datapath = DataPath(MEMORY_SIZE, cache_size, list(input_str))
+
+    for i, word in enumerate(code_words):
+        datapath.main_memory.memory[i] = word
+    code_size_words = len(code_words)
+    for i, word in enumerate(data_words):
+        if code_size_words + i < datapath.main_memory.size:
+            datapath.main_memory.memory[code_size_words + i] = word
+        else:
+            logging.warning("Data section overflows memory. Truncating.")
+            break
+
+    print(f"Code size: {len(code_words)} words. Data size: {len(data_words)} words.")
+
+    control_unit = ControlUnit(datapath)
+
+    logging.info("Starting simulation...")
+    _run_simulation_loop(control_unit, datapath, limit)
+
     output = "".join(datapath.main_memory.output_buffer)
-    logging.info(f"Simulation finished. Total ticks: {control_unit.tick_counter}. Output: '{output}'")
+    logging.info(
+        f"Simulation finished. Total ticks: {control_unit.tick_counter}. Output: '{output}'"
+    )
 
     return output, control_unit.tick_counter
 
 
 def main(code_file: str, input_file: str):
     """Главная функция для запуска симулятора из командной строки."""
-    logging.basicConfig(level=logging.INFO, format='%(levelname)-8s %(message)s')
+    logging.basicConfig(level=logging.INFO, format="%(levelname)-8s %(message)s")
     try:
-        with open(code_file, 'rb') as f:
+        with open(code_file, "rb") as f:
             binary_code = f.read()
     except FileNotFoundError:
         logging.critical(f"Error: Code file not found at '{code_file}'")
         sys.exit(1)
 
     try:
-        with open(input_file, 'r', encoding='utf-8') as f:
+        with open(input_file, "r", encoding="utf-8") as f:
             input_data = f.read()
     except FileNotFoundError:
         logging.warning(f"Input file not found at '{input_file}', using empty input.")
         input_data = ""
 
     output, ticks = simulation(
-        binary_code=binary_code,
-        input_str=input_data,
-        limit=500000,
-        cache_size=32
+        binary_code=binary_code, input_str=input_data, limit=500000, cache_size=32
     )
 
     print("-" * 40)
@@ -497,7 +568,7 @@ def main(code_file: str, input_file: str):
     print("-" * 40)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python machine.py <binary_code_file> <input_file>")
         sys.exit(1)

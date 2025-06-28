@@ -337,41 +337,41 @@ out_stdout: |
   '
   Total ticks: 159100
 out_log: |-
-  INFO     root:translator.py:857 Patched variable 'SUM': LUI@idx=170 imm=0x0000, ORI@idx=171 imm=0x010A -> final_word_addr=0x0000010A
-  INFO     root:translator.py:857 Patched variable 'SUM-OF-SQUARES': LUI@idx=176 imm=0x0000, ORI@idx=177 imm=0x010B -> final_word_addr=0x0000010B
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=182 imm=0x0000, ORI@idx=183 imm=0x0109 -> final_word_addr=0x00000109
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=186 imm=0x0000, ORI@idx=187 imm=0x0109 -> final_word_addr=0x00000109
-  INFO     root:translator.py:857 Patched variable 'SUM': LUI@idx=195 imm=0x0000, ORI@idx=196 imm=0x010A -> final_word_addr=0x0000010A
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=199 imm=0x0000, ORI@idx=200 imm=0x0109 -> final_word_addr=0x00000109
-  INFO     root:translator.py:857 Patched variable 'SUM': LUI@idx=207 imm=0x0000, ORI@idx=208 imm=0x010A -> final_word_addr=0x0000010A
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=211 imm=0x0000, ORI@idx=212 imm=0x0109 -> final_word_addr=0x00000109
-  INFO     root:translator.py:857 Patched variable 'SUM-OF-SQUARES': LUI@idx=220 imm=0x0000, ORI@idx=221 imm=0x010B -> final_word_addr=0x0000010B
-  INFO     root:translator.py:857 Patched variable 'SUM-OF-SQUARES': LUI@idx=228 imm=0x0000, ORI@idx=229 imm=0x010B -> final_word_addr=0x0000010B
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=232 imm=0x0000, ORI@idx=233 imm=0x0109 -> final_word_addr=0x00000109
-  INFO     root:translator.py:857 Patched variable 'I_VAR': LUI@idx=237 imm=0x0000, ORI@idx=238 imm=0x0109 -> final_word_addr=0x00000109
-  INFO     root:translator.py:857 Patched variable 'SUM': LUI@idx=242 imm=0x0000, ORI@idx=243 imm=0x010A -> final_word_addr=0x0000010A
-  INFO     root:translator.py:857 Patched variable 'SUM-OF-SQUARES': LUI@idx=251 imm=0x0000, ORI@idx=252 imm=0x010B -> final_word_addr=0x0000010B
-  INFO     root:machine.py:431 Starting simulation...
-  INFO     root:machine.py:448 TICK:    0 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 0 | Zero: False
-  DEBUG    root:machine.py:291 TICK 1: Executing micro-op: LATCH_MAR_PC
-  INFO     root:machine.py:448 TICK:    1 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 1 | Zero: False
-  DEBUG    root:machine.py:291 TICK 2: Executing micro-op: CACHE_READ
-  WARNING  root:machine.py:61 CACHE: MISS on read at addr 0x0000. Accessing main memory.
-  INFO     root:machine.py:448 TICK:    2 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 8 cycles remaining.
-  INFO     root:machine.py:448 TICK:    3 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 7 cycles remaining.
-  INFO     root:machine.py:448 TICK:    4 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 6 cycles remaining.
-  INFO     root:machine.py:448 TICK:    5 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 5 cycles remaining.
-  INFO     root:machine.py:448 TICK:    6 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 4 cycles remaining.
-  INFO     root:machine.py:448 TICK:    7 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 3 cycles remaining.
-  INFO     root:machine.py:448 TICK:    8 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 2 cycles remaining.
-  INFO     root:machine.py:448 TICK:    9 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
-  INFO     root:machine.py:250 STALL: 1 cycles remaining.
-  INFO     root:machine.py:448 TICK:   10 | PC: 0x0000 | IR: 0x00000000 (NOP) |
+  INFO     root:translator.py:1002 Patched variable 'SUM': LUI@idx=170 imm=0x0000, ORI@idx=171 imm=0x010A -> final_word_addr=0x0000010A
+  INFO     root:translator.py:1002 Patched variable 'SUM-OF-SQUARES': LUI@idx=176 imm=0x0000, ORI@idx=177 imm=0x010B -> final_word_addr=0x0000010B
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=182 imm=0x0000, ORI@idx=183 imm=0x0109 -> final_word_addr=0x00000109
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=186 imm=0x0000, ORI@idx=187 imm=0x0109 -> final_word_addr=0x00000109
+  INFO     root:translator.py:1002 Patched variable 'SUM': LUI@idx=195 imm=0x0000, ORI@idx=196 imm=0x010A -> final_word_addr=0x0000010A
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=199 imm=0x0000, ORI@idx=200 imm=0x0109 -> final_word_addr=0x00000109
+  INFO     root:translator.py:1002 Patched variable 'SUM': LUI@idx=207 imm=0x0000, ORI@idx=208 imm=0x010A -> final_word_addr=0x0000010A
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=211 imm=0x0000, ORI@idx=212 imm=0x0109 -> final_word_addr=0x00000109
+  INFO     root:translator.py:1002 Patched variable 'SUM-OF-SQUARES': LUI@idx=220 imm=0x0000, ORI@idx=221 imm=0x010B -> final_word_addr=0x0000010B
+  INFO     root:translator.py:1002 Patched variable 'SUM-OF-SQUARES': LUI@idx=228 imm=0x0000, ORI@idx=229 imm=0x010B -> final_word_addr=0x0000010B
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=232 imm=0x0000, ORI@idx=233 imm=0x0109 -> final_word_addr=0x00000109
+  INFO     root:translator.py:1002 Patched variable 'I_VAR': LUI@idx=237 imm=0x0000, ORI@idx=238 imm=0x0109 -> final_word_addr=0x00000109
+  INFO     root:translator.py:1002 Patched variable 'SUM': LUI@idx=242 imm=0x0000, ORI@idx=243 imm=0x010A -> final_word_addr=0x0000010A
+  INFO     root:translator.py:1002 Patched variable 'SUM-OF-SQUARES': LUI@idx=251 imm=0x0000, ORI@idx=252 imm=0x010B -> final_word_addr=0x0000010B
+  INFO     root:machine.py:533 Starting simulation...
+  INFO     root:machine.py:483 TICK:    0 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 0 | Zero: False
+  DEBUG    root:machine.py:437 TICK 1: Executing micro-op: LATCH_MAR_PC
+  INFO     root:machine.py:483 TICK:    1 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 1 | Zero: False
+  DEBUG    root:machine.py:437 TICK 2: Executing micro-op: CACHE_READ
+  WARNING  root:machine.py:65 CACHE: MISS on read at addr 0x0000. Accessing main memory.
+  INFO     root:machine.py:483 TICK:    2 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 8 cycles remaining.
+  INFO     root:machine.py:483 TICK:    3 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 7 cycles remaining.
+  INFO     root:machine.py:483 TICK:    4 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 6 cycles remaining.
+  INFO     root:machine.py:483 TICK:    5 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 5 cycles remaining.
+  INFO     root:machine.py:483 TICK:    6 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 4 cycles remaining.
+  INFO     root:machine.py:483 TICK:    7 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 3 cycles remaining.
+  INFO     root:machine.py:483 TICK:    8 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 2 cycles remaining.
+  INFO     root:machine.py:483 TICK:    9 | PC: 0x0000 | IR: 0x00000000 (NOP) | SP: 64536 | DSP: 60536 | MicroPC: 2 | Zero: False
+  INFO     root:machine.py:271 STALL: 1 cycles remaining.
+  INFO     root:machine.py:483 TICK:   10 | PC: 0x0000 | IR: 0x00
   ... (log truncated)
