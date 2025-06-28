@@ -1,0 +1,7 @@
+BEGIN
+    KEY
+    DUP 0 <>
+WHILE
+    EMIT
+REPEAT
+HALT

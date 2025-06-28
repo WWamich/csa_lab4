@@ -875,7 +875,7 @@ def main(source_file: str, target_file: str):
             f.write(struct.pack('>I', word_val))  # упаковка каждого слова
 
     data_section_size_bytes = len(data_words) * 4  # Размер секции данных в байтах
-    with open(target_file + ".txt", 'w', encoding='utf-8') as f:
+    with open(target_file + ".txt", 'w', encoding='utf-8', newline='') as f:
         f.write(f"; Source: {source_file}\n")
         f.write(f"; Code section (size: {len(instructions) * 4} bytes)\n")
         for i, instr in enumerate(instructions):

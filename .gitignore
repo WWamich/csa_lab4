@@ -1,0 +1,13 @@
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+.env
+.venv/
+
+*.log
+*.tmp
+/temp/
+.pytest_cache/
