@@ -52,7 +52,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -69,11 +69,5 @@ jobs:
       - name: Run Pytest and collect Coverage
         run: poetry run coverage run -m pytest .
 
-      - name: Generate Coverage Report
-        run: poetry run coverage xml
-
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage.xml
+      - name: Display Coverage Report
+        run: poetry run coverage report --show-missing
